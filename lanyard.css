@@ -12,21 +12,6 @@
   overflow: visible;
   pointer-events: none; /* lets clicks pass through the empty space around the card */
   perspective: 1200px;  /* gives the flip/tilt below real depth instead of a flat squash */
-  /* One-time entrance: the whole rig (string + card) starts off-screen
-     above the page and drops down, with a little overshoot/settle at
-     the end so it reads as a "pop" into place rather than a hard stop.
-     This only moves the container itself - it doesn't touch how the
-     rope, drag, or spin/tilt behave once it's landed. */
-  animation: lanyard-drop-in 0.9s cubic-bezier(0.34, 1.56, 0.64, 1) both;
-}
-
-@keyframes lanyard-drop-in {
-  from {
-    transform: translateY(-100vh);
-  }
-  to {
-    transform: translateY(0);
-  }
 }
 
 /* lanyard.js sizes this canvas taller than the container itself so the
@@ -93,13 +78,11 @@
   gap: 10px;
 }
 
-/* Shrunk down a bit further and centered in the face rather than
-   filling it edge-to-edge. */
 .lanyard-face-back {
   background: linear-gradient(160deg, #e8fff0, #c8f5d9);
   transform: rotateY(180deg);
   justify-content: center;
-  align-items: center;
+  gap: 8px;
 }
 
 .lanyard-back-gif {
@@ -146,6 +129,13 @@
   font-family: 'Trebuchet MS', 'Segoe UI', sans-serif;
   font-size: 12px;
   color: #2f8f5c;
+}
+
+.lanyard-back-text {
+  margin: 0;
+  font-family: 'Pixelify Sans', cursive, sans-serif;
+  font-size: 14px;
+  color: #15803d;
 }
 
 @media (max-width: 480px) {
