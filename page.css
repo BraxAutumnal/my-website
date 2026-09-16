@@ -77,19 +77,17 @@ p {
 
 .about-links {
   display: flex;
-  gap: 12px;
+  gap: 16px;
+  align-items: center;
   justify-content: center;
 }
 
+/* No more circle background/border - just the icon itself, sized by
+   width/height on the <img> below. */
 .about-links a {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
-  border: 2px solid #ff8fc4;
-  background: #ffe1f0;
   transition: transform 0.15s ease;
 }
 
@@ -98,16 +96,13 @@ p {
 }
 
 .about-links img {
-  width: 24px;
-  height: 24px;
+  width: 32px;
+  height: 32px;
   object-fit: contain;
 }
 
-/* The Carrd logo reads noticeably smaller than the VGen logo at the
-   same box size, so it gets its own size bump instead of enlarging
-   both icons. This only changes the image size - the link/function
-   is untouched. */
+
 .about-links img.icon-carrd {
-  width: 34px;
-  height: 34px;
+  width: 52px;
+  height: 52px;
 }
