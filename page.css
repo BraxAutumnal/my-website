@@ -3,14 +3,14 @@
 body {
   margin: 0;
   min-height: 100vh;
-  background: #ffe1f0;
+  background: #e8fff0;
   font-family: 'Trebuchet MS', 'Segoe UI', sans-serif;
-  color: #b4477c;
+  color: #2f8f5c;
 }
 
 h1 {
   font-family: 'Pixelify Sans', cursive, sans-serif;
-  color: #d6336c;
+  color: #15803d;
   padding: 32px 24px 0;
   margin: 0;
   text-align: center;
@@ -25,7 +25,7 @@ p {
 .intro-text {
   font-family: 'Pixelify Sans', cursive, sans-serif;
   font-size: 18px;
-  color: #d6336c;
+  color: #15803d;
   text-align: center;
 }
 
@@ -38,25 +38,25 @@ p {
   margin: 40px auto;
   border-radius: 14px;
   overflow: hidden;
-  border: 3px solid #ff5fa2;
-  box-shadow: 0 8px 0 #ff5fa2;
-  /* Starts lower and invisible, then slides up into its resting
-     spot. Runs once on page load - not tied to scroll, so it never
-     replays. */
+  border: 3px solid #22c55e;
+  box-shadow: 0 8px 0 #22c55e;
+  /* Starts off to the right and invisible, then slides in to its
+     resting, centered spot. Runs once on page load - not tied to
+     scroll, so it never replays. */
   opacity: 0;
-  transform: translateY(60px);
+  transform: translateX(300px);
   animation: about-card-in 0.6s ease-out 0.1s forwards;
 }
 
 @keyframes about-card-in {
   to {
     opacity: 1;
-    transform: translateY(0);
+    transform: translateX(0);
   }
 }
 
 .about-card-header {
-  background: linear-gradient(135deg, #ff8fc4, #ff5fa2);
+  background: linear-gradient(135deg, #6ee7a8, #22c55e);
   padding: 16px 20px;
   text-align: center;
 }
@@ -78,16 +78,15 @@ p {
    suddenly read in a different typeface. Kept at a modest size and
    regular weight rather than the bigger, bolder look used for
    headings, so a full paragraph of it still reads comfortably. Each
-   paragraph gets its own bottom margin, which is what actually
-   creates the gap between the "Hey there..." line and the
-   "Demisexual..." line below it now that they're split into two
-   separate <p> tags. */
+   paragraph gets its own bottom margin, which is what creates the
+   gap between the "Hey there..." line and the "Demisexual..." line
+   below it, since they're separate <p> tags. */
 .about-card-body p {
   margin: 0 0 16px;
   padding: 0;
   font-family: 'Pixelify Sans', cursive, sans-serif;
   font-weight: 400;
-  color: #b4477c;
+  color: #2f8f5c;
   font-size: 16px;
   line-height: 1.6;
 }
@@ -104,23 +103,27 @@ p {
 }
 
 /* No circle background/border - just the icon itself, sized by
-   width/height on the <img> below. Each icon fades in once on load,
-   staggered slightly and timed to start after the card has mostly
-   finished sliding up. */
+   width/height on the <img> below. Each icon pops in with a small
+   scale-up-and-settle, once on load, staggered slightly and timed to
+   start after the card has mostly finished sliding in. */
 .about-links a {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   transition: transform 0.15s ease;
   opacity: 0;
-  animation: icon-fade-in 0.7s ease-in forwards;
+  transform: scale(0.3);
+  animation: icon-pop-in 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
 }
 
-.about-links a:nth-child(1) { animation-delay: 0.75s; }
-.about-links a:nth-child(2) { animation-delay: 0.9s; }
+.about-links a:nth-child(1) { animation-delay: 0.55s; }
+.about-links a:nth-child(2) { animation-delay: 0.7s; }
 
-@keyframes icon-fade-in {
-  to { opacity: 1; }
+@keyframes icon-pop-in {
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 .about-links a:hover {
