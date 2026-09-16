@@ -40,6 +40,19 @@ p {
   overflow: hidden;
   border: 3px solid #ff5fa2;
   box-shadow: 0 8px 0 #ff5fa2;
+  /* Starts lower and invisible, then slides up into its resting
+     spot. Runs once on page load - not tied to scroll, so it never
+     replays. */
+  opacity: 0;
+  transform: translateY(60px);
+  animation: about-card-in 0.6s ease-out 0.1s forwards;
+}
+
+@keyframes about-card-in {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .about-card-header {
@@ -64,7 +77,11 @@ p {
    the lanyard tag/name, the intro line) so the About Me box doesn't
    suddenly read in a different typeface. Kept at a modest size and
    regular weight rather than the bigger, bolder look used for
-   headings, so a full paragraph of it still reads comfortably. */
+   headings, so a full paragraph of it still reads comfortably. Each
+   paragraph gets its own bottom margin, which is what actually
+   creates the gap between the "Hey there..." line and the
+   "Demisexual..." line below it now that they're split into two
+   separate <p> tags. */
 .about-card-body p {
   margin: 0 0 16px;
   padding: 0;
@@ -75,6 +92,10 @@ p {
   line-height: 1.6;
 }
 
+.about-card-body p:last-of-type {
+  margin-bottom: 16px;
+}
+
 .about-links {
   display: flex;
   gap: 16px;
@@ -82,13 +103,24 @@ p {
   justify-content: center;
 }
 
-/* No more circle background/border - just the icon itself, sized by
-   width/height on the <img> below. */
+/* No circle background/border - just the icon itself, sized by
+   width/height on the <img> below. Each icon fades in once on load,
+   staggered slightly and timed to start after the card has mostly
+   finished sliding up. */
 .about-links a {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   transition: transform 0.15s ease;
+  opacity: 0;
+  animation: icon-fade-in 0.7s ease-in forwards;
+}
+
+.about-links a:nth-child(1) { animation-delay: 0.75s; }
+.about-links a:nth-child(2) { animation-delay: 0.9s; }
+
+@keyframes icon-fade-in {
+  to { opacity: 1; }
 }
 
 .about-links a:hover {
@@ -101,7 +133,10 @@ p {
   object-fit: contain;
 }
 
-
+/* The Carrd logo's artwork sits with a lot of empty space inside the
+   image itself, so it reads noticeably smaller than the VGen logo
+   even at the same box size. Sized up well past the VGen icon here
+   to actually compensate for that built-in whitespace. */
 .about-links img.icon-carrd {
   width: 52px;
   height: 52px;
