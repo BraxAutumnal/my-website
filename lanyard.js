@@ -32,9 +32,12 @@ function resize() {
   canvas.width = width;
   canvas.height = height;
   canvas.style.height = height + 'px';
+  // Keep the string's pin point centered on whatever the current
+  // container width actually is - without this, the anchor stays
+  // stuck at the width the page happened to load at, and the badge
+  // drifts off-center any time the window is a different size.
+  anchor.x = width / 2;
 }
-window.addEventListener('resize', resize);
-resize();
 
 // ---- Rope setup ----
 const numSegments = 9;
@@ -42,7 +45,10 @@ const segmentLength = 26;
 // The anchor sits just above the visible area so the string looks
 // like it's coming from off-screen instead of showing a dot where
 // it's pinned.
-const anchor = { x: width / 2, y: -40 };
+const anchor = { x: 0, y: -40 };
+
+window.addEventListener('resize', resize);
+resize();
 
 let points = [];
 for (let i = 0; i <= numSegments; i++) {
