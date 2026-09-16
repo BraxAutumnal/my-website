@@ -1,89 +1,154 @@
 @import url('https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;700&display=swap');
 
-/* ---- Page-wide layout & reset ---- */
+/* ---- Draggable lanyard badge ---- */
 
-* {
+/* No longer a fixed full-viewport overlay - it's a normal block at the
+   top of the page now, so everything after it (the h1, the About Me
+   card) naturally flows below it instead of getting covered. */
+#lanyard-container {
+  position: relative;
+  width: 100%;
+  height: 600px;
+  overflow: visible;
+  pointer-events: none; /* lets clicks pass through the empty space around the card */
+  perspective: 1200px;  /* gives the flip/tilt below real depth instead of a flat squash */
+}
+
+/* lanyard.js sizes this canvas taller than the container itself so the
+   ribbon has room to draw all the way down even when the badge is
+   dragged well past the container's resting height - it never runs
+   out of drawing surface and disappears. */
+#lanyard-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1;
+}
+
+/* Rectangular, portrait badge - like a real event/ID badge instead of
+   a round-photo fursona sticker. */
+#lanyard-card {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 220px;
+  height: 320px;
+  margin-left: -110px;      /* centers the card on its attachment point */
+  transform-origin: 50% 0;  /* rotates around the string, not the middle */
+  transform-style: preserve-3d;
+  pointer-events: auto;
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+  z-index: 2;
+}
+
+#lanyard-card:active {
+  cursor: grabbing;
+}
+
+/* This inner wrapper is what actually spins/tilts in 3D (independent
+   of the outer card's swing rotation), so the card can turn around to
+   show its back face. */
+.lanyard-flip {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+}
+
+.lanyard-face {
+  position: absolute;
+  inset: 0;
   box-sizing: border-box;
-}
-
-html, body {
-  margin: 0;
-  padding: 0;
-  min-height: 100%;
-}
-
-body {
-  background: #f4fff8;
-  font-family: 'Trebuchet MS', 'Segoe UI', sans-serif;
-  color: #1a1a1a;
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding-bottom: 60px;
+  border-radius: 16px;
+  border: 4px solid 
+#6ee7a8;
+  box-shadow: 4px 4px 0 
+#22c55e; /* hard-edged shadow = the cute/pixel-sticker look */
+  backface-visibility: hidden;
+  overflow: hidden;
 }
 
-/* ---- About Me card ---- */
-/* Styled to echo the lanyard badge's look: rounded corners, thick
-   soft-green border, hard-edged drop shadow. */
-
-.about-card {
-  width: 100%;
-  max-width: 480px;
-  margin: 0 auto;
-  background: #ffffff;
-  border: 4px solid #6ee7a8;
-  border-radius: 20px;
-  box-shadow: 6px 6px 0 #22c55e;
-  padding: 24px;
-  text-align: center;
+.lanyard-face-front {
+  background: 
+#e8fff0;
+  padding: 14px;
+  gap: 10px;
 }
 
-.about-card-header h2 {
-  margin: 0 0 12px;
-  font-family: 'Pixelify Sans', cursive, sans-serif;
-  font-size: 26px;
-  color: #14532d;
-}
-
-.about-card-body p {
-  margin: 0 0 12px;
-  font-size: 15px;
-  line-height: 1.5;
-}
-
-.about-links {
-  display: flex;
+.lanyard-face-back {
+  background: linear-gradient(160deg, 
+#e8fff0, 
+#c8f5d9);
+  transform: rotateY(180deg);
   justify-content: center;
-  align-items: center;
-  gap: 16px;
-  margin-top: 16px;
+  gap: 8px;
 }
 
-/* Without an explicit size, these logos render at whatever raw pixel
-   dimensions the source files happen to be - that's what caused the
-   giant blown-up icon. Locking them to a small square fixes it
-   regardless of the source image's actual resolution. */
-.about-links img {
-  width: 40px;
-  height: 40px;
+.lanyard-back-gif {
+  width: 64px;   /* icon-scale, like the VGen/Carrd links in the About Me card */
+  height: auto;
   object-fit: contain;
 }
 
-.about-links a {
-  display: inline-flex;
-  transition: transform 0.15s ease;
+.lanyard-tag {
+  align-self: stretch;
+  text-align: center;
+  background: linear-gradient(135deg, 
+#6ee7a8, 
+#22c55e);
+  color: #fff;
+  font-family: 'Pixelify Sans', cursive, sans-serif;
+  font-size: 12px;
+  letter-spacing: 1px;
+  padding: 4px 0;
+  border-radius: 6px;
 }
 
-.about-links a:hover {
-  transform: translateY(-2px);
+.lanyard-photo {
+  width: 100%;
+  height: 200px;
+  border-radius: 10px; /* rectangular photo, not a circle */
+  object-fit: cover;
+  background: #fff;
+  border: 3px solid 
+#22c55e;
+}
+
+.lanyard-face-text {
+  text-align: center;
+}
+
+.lanyard-face-text h2 {
+  margin: 0;
+  font-family: 'Pixelify Sans', cursive, sans-serif;
+  font-size: 20px;
+  color: #000;
+}
+
+.lanyard-face-text p {
+  margin: 4px 0 0;
+  padding: 0;
+  font-family: 'Trebuchet MS', 'Segoe UI', sans-serif;
+  font-size: 12px;
+  color: #000;
+}
+
+.lanyard-back-text {
+  margin: 0;
+  font-family: 'Pixelify Sans', cursive, sans-serif;
+  font-size: 14px;
+  color: #000;
 }
 
 @media (max-width: 480px) {
-  .about-card {
-    max-width: 92%;
-    padding: 18px;
-  }
-  .about-card-header h2 {
-    font-size: 22px;
-  }
+  #lanyard-container { height: 520px; }
+  #lanyard-card { width: 190px; height: 280px; margin-left: -95px; }
+  .lanyard-face-front { padding: 10px; gap: 8px; }
+  .lanyard-photo { height: 170px; }
 }
