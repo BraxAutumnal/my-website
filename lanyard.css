@@ -2,14 +2,16 @@
 
 /* ---- Draggable lanyard badge ---- */
 
+/* No longer a fixed full-viewport overlay - it's a normal block at the
+   top of the page now, so everything after it (the h1, the About Me
+   card) naturally flows below it instead of getting covered. */
 #lanyard-container {
-  position: fixed;
-  top: 0;
-  left: 0;
+  position: relative;
   width: 100%;
-  height: 100vh;
-  pointer-events: none; /* lets clicks pass through to the page underneath */
-  z-index: 9999;
+  height: 600px;
+  overflow: visible;
+  pointer-events: none; /* lets clicks pass through the empty space around the card */
+  perspective: 1200px;  /* gives the flip/tilt below real depth instead of a flat squash */
 }
 
 #lanyard-canvas {
@@ -18,63 +20,137 @@
   left: 0;
   width: 100%;
   height: 100%;
+  z-index: 1;
 }
 
+/* Rectangular, portrait badge - like a real event/ID badge instead of
+   a round-photo fursona sticker. */
 #lanyard-card {
   position: absolute;
   top: 0;
   left: 0;
-  width: 200px;
-  height: 160px;
-  margin-left: -100px;       /* centers the card on its attachment point */
-  transform-origin: 50% 0;   /* rotates around the string, not the middle */
-  border-radius: 10px;
-  background: #ffe1f0;
-  border: 4px solid #ff8fc4;
-  box-shadow: 4px 4px 0 #ff5fa2; /* hard-edged shadow = the cute/pixel-sticker look */
+  width: 220px;
+  height: 320px;
+  margin-left: -110px;      /* centers the card on its attachment point */
+  transform-origin: 50% 0;  /* rotates around the string, not the middle */
+  transform-style: preserve-3d;
   pointer-events: auto;
   cursor: grab;
   touch-action: none;
   user-select: none;
-  overflow: hidden;
+  z-index: 2;
 }
 
 #lanyard-card:active {
   cursor: grabbing;
 }
 
-.lanyard-card-inner {
+/* A little punched "grommet" where the string clips on, like a real badge */
+#lanyard-card::before {
+  content: '';
+  position: absolute;
+  top: -7px;
+  left: 50%;
+  width: 14px;
+  height: 14px;
+  margin-left: -7px;
+  background: #fff5fa;
+  border: 3px solid #ff5fa2;
+  border-radius: 50%;
+  z-index: 3;
+}
+
+/* This inner wrapper is what actually spins/tilts in 3D (independent
+   of the outer card's swing rotation), so the card can turn around to
+   show its back face. */
+.lanyard-flip {
+  position: relative;
   width: 100%;
   height: 100%;
+  transform-style: preserve-3d;
+}
+
+.lanyard-face {
+  position: absolute;
+  inset: 0;
   box-sizing: border-box;
-  padding: 14px;
   display: flex;
   flex-direction: column;
   align-items: center;
+  border-radius: 16px;
+  border: 4px solid #ff8fc4;
+  box-shadow: 4px 4px 0 #ff5fa2; /* hard-edged shadow = the cute/pixel-sticker look */
+  backface-visibility: hidden;
+  overflow: hidden;
+}
+
+.lanyard-face-front {
+  background: #ffe1f0;
+  padding: 14px;
+  gap: 10px;
+}
+
+.lanyard-face-back {
+  background: linear-gradient(160deg, #ffe1f0, #ffc2e0);
+  transform: rotateY(180deg);
   justify-content: center;
-  gap: 6px;
+  gap: 8px;
+}
+
+.lanyard-tag {
+  align-self: stretch;
   text-align: center;
+  background: linear-gradient(135deg, #ff8fc4, #ff5fa2);
+  color: #fff;
+  font-family: 'Pixelify Sans', cursive, sans-serif;
+  font-size: 12px;
+  letter-spacing: 1px;
+  padding: 4px 0;
+  border-radius: 6px;
 }
 
 .lanyard-photo {
-  width: 64px;
-  height: 64px;
-  border-radius: 50%;
+  width: 100%;
+  height: 200px;
+  border-radius: 10px; /* rectangular photo, not a circle */
   object-fit: cover;
   background: #fff;
   border: 3px solid #ff5fa2;
 }
 
-.lanyard-card-inner h2 {
+.lanyard-face-text {
+  text-align: center;
+}
+
+.lanyard-face-text h2 {
   margin: 0;
   font-family: 'Pixelify Sans', cursive, sans-serif;
   font-size: 20px;
   color: #d6336c;
 }
 
-.lanyard-card-inner p {
-  margin: 0;
+.lanyard-face-text p {
+  margin: 4px 0 0;
+  padding: 0;
   font-family: 'Trebuchet MS', 'Segoe UI', sans-serif;
   font-size: 12px;
   color: #b4477c;
+}
+
+.lanyard-back-emoji {
+  font-size: 56px;
+}
+
+.lanyard-back-text {
+  margin: 0;
+  font-family: 'Pixelify Sans', cursive, sans-serif;
+  font-size: 14px;
+  color: #d6336c;
+}
+
+@media (max-width: 480px) {
+  #lanyard-container { height: 520px; }
+  #lanyard-card { width: 190px; height: 280px; margin-left: -95px; }
+  .lanyard-face-front { padding: 10px; gap: 8px; }
+  .lanyard-photo { height: 170px; }
 }
