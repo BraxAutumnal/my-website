@@ -21,8 +21,18 @@ const card = document.getElementById('lanyard-card');
 const flip = card.querySelector('.lanyard-flip');
 const ctx = canvas.getContext('2d');
 
+// ---- Rope setup ----
+const numSegments = 9;
+const segmentLength = 26;
+// The anchor sits just above the visible area so the string looks
+// like it's coming from off-screen instead of showing a dot where
+// it's pinned.
+const anchor = { x: 0, y: -40 };
+let points = [];
+
 let width, height;
 function resize() {
+  const oldAnchorX = anchor.x;
   width = container.offsetWidth;
   // The drawing surface is made noticeably taller than the container's
   // own height, so the badge can be dragged well past the container's
@@ -32,25 +42,30 @@ function resize() {
   canvas.width = width;
   canvas.height = height;
   canvas.style.height = height + 'px';
-  // Keep the string's pin point centered on whatever the current
-  // container width actually is - without this, the anchor stays
-  // stuck at the width the page happened to load at, and the badge
-  // drifts off-center any time the window is a different size.
   anchor.x = width / 2;
-}
 
-// ---- Rope setup ----
-const numSegments = 9;
-const segmentLength = 26;
-// The anchor sits just above the visible area so the string looks
-// like it's coming from off-screen instead of showing a dot where
-// it's pinned.
-const anchor = { x: 0, y: -40 };
+  // Shift every existing point (and its previous-frame position) by
+  // the same amount the anchor just moved, instead of only moving the
+  // pinned point. Moving just the anchor left the rest of the rope
+  // behind, so any resize - including the ones that fullscreen and
+  // windowed toggles trigger - made the whole rope suddenly stretch
+  // across the gap in a single frame. That snap-instead-of-slide is
+  // what reads as the badge "spazzing," and can kick the spin hard
+  // enough that it settles back-first, since nothing pulls spin back
+  // toward front (only tilt has a restoring force - see
+  // updateSpinAndTilt below).
+  const dx = anchor.x - oldAnchorX;
+  if (dx && points.length) {
+    for (const p of points) {
+      p.x += dx;
+      p.oldx += dx;
+    }
+  }
+}
 
 window.addEventListener('resize', resize);
 resize();
 
-let points = [];
 for (let i = 0; i <= numSegments; i++) {
   points.push({
     x: anchor.x,
@@ -64,18 +79,11 @@ for (let i = 0; i <= numSegments; i++) {
 const gravity = 0.85;
 const friction = 0.99;          // higher = less damping = livelier, bouncier swings
 const dragStrength = 0.22;      // lower = more lag/stretch while you're dragging
-// Fewer iterations plus a softer per-iteration correction means the
-// rope no longer snaps back to its resting length almost instantly
-// (which read as one stiff, rigid swing) - segments now settle into
-// place with a visible, natural wave instead.
 const constraintIterations = 2; // fewer = stretchier, less rigid rope
 const stiffness = 0.4;          // lower = the ribbon can stretch further before snapping back
 const windStrength = 0.045;     // tiny constant sway so it never looks totally frozen at rest
 
 // ---- Spin & tilt ("turning around") ----
-// Not dragged directly - built from the swing's own velocity, then
-// damped like everything else here, so it coasts and settles instead
-// of snapping.
 let spin = 0;            // rotateY - free to end up facing either way
 let spinVelocity = 0;
 const spinTorque = 0.02;
@@ -145,8 +153,6 @@ function updatePoints() {
   }
 
   if (dragging) {
-    // Easing toward the cursor (rather than snapping to it) gives the
-    // ribbon room to stretch, so letting go feels like a real bounce.
     const last = points[points.length - 1];
     last.x += (target.x - last.x) * dragStrength;
     last.y += (target.y - last.y) * dragStrength;
@@ -162,8 +168,6 @@ function applyConstraints() {
       const dy = p2.y - p1.y;
       const dist = Math.sqrt(dx * dx + dy * dy) || 0.0001;
       const diff = (dist - segmentLength) / dist;
-      // Multiplying by "stiffness" (< 1) makes this a soft spring
-      // correction instead of a hard, instantly-rigid one.
       const offsetX = dx * 0.5 * diff * stiffness;
       const offsetY = dy * 0.5 * diff * stiffness;
 
@@ -191,7 +195,7 @@ function updateSpinAndTilt() {
   spin += spinVelocity;
 
   tiltVelocity += vy * tiltTorque;
-  tiltVelocity += -tiltX * tiltRestoring; // gravity easing it back flat
+  tiltVelocity += -tiltX * tiltRestoring;
   tiltVelocity *= tiltDamping;
   tiltX += tiltVelocity;
   if (tiltX > tiltLimit) { tiltX = tiltLimit; tiltVelocity = 0; }
@@ -205,9 +209,6 @@ const baseWidth = 14;
 function draw() {
   ctx.clearRect(0, 0, width, height);
 
-  // Draw the string as a flat ribbon (a rectangle per segment) instead
-  // of a round cord. Segments get slightly thinner when stretched past
-  // their resting length, like a real elastic strap.
   for (let i = 0; i < points.length - 1; i++) {
     const p1 = points[i];
     const p2 = points[i + 1];
@@ -230,14 +231,11 @@ function draw() {
     ctx.fill();
   }
 
-  // Move and rotate the card to follow the last two points of the rope
   const last = points[points.length - 1];
   const prev = points[points.length - 2];
   const angle = Math.atan2(last.x - prev.x, last.y - prev.y) * (180 / Math.PI);
 
   card.style.transform = `translate(${last.x}px, ${last.y}px) rotateZ(${angle}deg)`;
-  // The spin/tilt live on the inner wrapper so they compose with (but
-  // don't fight) the swing rotation above.
   flip.style.transform = `rotateX(${tiltX}deg) rotateY(${spin}deg)`;
 }
 
