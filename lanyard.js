@@ -4,10 +4,19 @@
 // toward its neighbors to keep the segments roughly a fixed length
 // apart. The correction is partial (not fully rigid), which is what
 // lets the ribbon visibly stretch under load and spring back after.
+//
+// On top of that swing, the card itself gets its own independent spin
+// and tilt, driven by how fast the last point of the rope is moving.
+// Whip it sideways and it twirls around on the string (showing the
+// back before it settles) the way flicking a real convention badge
+// does; yank it up/down and it tips, then gravity eases it back flat -
+// the same way a hanging badge doesn't stay tipped, but can happily
+// rest facing either way after a spin.
 
 const container = document.getElementById('lanyard-container');
 const canvas = document.getElementById('lanyard-canvas');
 const card = document.getElementById('lanyard-card');
+const flip = card.querySelector('.lanyard-flip');
 const ctx = canvas.getContext('2d');
 
 let width, height;
@@ -42,8 +51,25 @@ for (let i = 0; i <= numSegments; i++) {
 const gravity = 0.85;
 const friction = 0.99;          // higher = less damping = livelier, bouncier swings
 const dragStrength = 0.22;      // lower = more lag/stretch while you're dragging
-const constraintIterations = 3; // fewer = stretchier, less rigid rope
+const constraintIterations = 4; // fewer = stretchier, less rigid rope
 const stiffness = 0.55;         // lower = the ribbon can stretch further before snapping back
+const windStrength = 0.045;     // tiny constant sway so it never looks totally frozen at rest
+
+// ---- Spin & tilt ("turning around") ----
+// Not dragged directly - built from the swing's own velocity, then
+// damped like everything else here, so it coasts and settles instead
+// of snapping.
+let spin = 0;            // rotateY - free to end up facing either way
+let spinVelocity = 0;
+const spinTorque = 0.02;
+const spinDamping = 0.94;
+
+let tiltX = 0;            // rotateX - always eases back toward flat
+let tiltVelocity = 0;
+const tiltTorque = 0.015;
+const tiltRestoring = 0.02;
+const tiltDamping = 0.9;
+const tiltLimit = 20;
 
 // ---- Dragging ----
 let dragging = false;
@@ -86,14 +112,18 @@ window.addEventListener('mouseup', endDrag);
 window.addEventListener('touchend', endDrag);
 
 // ---- Physics ----
+let frame = 0;
+
 function updatePoints() {
-  for (const p of points) {
+  frame++;
+  for (let i = 0; i < points.length; i++) {
+    const p = points[i];
     if (p.pinned) continue;
     const vx = (p.x - p.oldx) * friction;
     const vy = (p.y - p.oldy) * friction;
     p.oldx = p.x;
     p.oldy = p.y;
-    p.x += vx;
+    p.x += vx + Math.sin(frame * 0.02 + i * 0.6) * windStrength;
     p.y += vy + gravity;
   }
 
@@ -134,6 +164,23 @@ function applyConstraints() {
   }
 }
 
+function updateSpinAndTilt() {
+  const last = points[points.length - 1];
+  const vx = last.x - last.oldx;
+  const vy = last.y - last.oldy;
+
+  spinVelocity += vx * spinTorque;
+  spinVelocity *= spinDamping;
+  spin += spinVelocity;
+
+  tiltVelocity += vy * tiltTorque;
+  tiltVelocity += -tiltX * tiltRestoring; // gravity easing it back flat
+  tiltVelocity *= tiltDamping;
+  tiltX += tiltVelocity;
+  if (tiltX > tiltLimit) { tiltX = tiltLimit; tiltVelocity = 0; }
+  if (tiltX < -tiltLimit) { tiltX = -tiltLimit; tiltVelocity = 0; }
+}
+
 // ---- Rendering ----
 const ribbonColor = '#ff8fc4';
 const baseWidth = 14;
@@ -171,12 +218,16 @@ function draw() {
   const prev = points[points.length - 2];
   const angle = Math.atan2(last.x - prev.x, last.y - prev.y) * (180 / Math.PI);
 
-  card.style.transform = `translate(${last.x}px, ${last.y}px) rotate(${angle}deg)`;
+  card.style.transform = `translate(${last.x}px, ${last.y}px) rotateZ(${angle}deg)`;
+  // The spin/tilt live on the inner wrapper so they compose with (but
+  // don't fight) the swing rotation above.
+  flip.style.transform = `rotateX(${tiltX}deg) rotateY(${spin}deg)`;
 }
 
 function loop() {
   updatePoints();
   applyConstraints();
+  updateSpinAndTilt();
   draw();
   requestAnimationFrame(loop);
 }
