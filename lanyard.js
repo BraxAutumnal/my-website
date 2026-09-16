@@ -47,13 +47,9 @@ function resize() {
   // Shift every existing point (and its previous-frame position) by
   // the same amount the anchor just moved, instead of only moving the
   // pinned point. Moving just the anchor left the rest of the rope
-  // behind, so any resize - including the ones that fullscreen and
-  // windowed toggles trigger - made the whole rope suddenly stretch
-  // across the gap in a single frame. That snap-instead-of-slide is
-  // what reads as the badge "spazzing," and can kick the spin hard
-  // enough that it settles back-first, since nothing pulls spin back
-  // toward front (only tilt has a restoring force - see
-  // updateSpinAndTilt below).
+  // behind, so any resize - including fullscreen/windowed toggles -
+  // made the whole rope suddenly stretch across the gap in a single
+  // frame instead of sliding smoothly.
   const dx = anchor.x - oldAnchorX;
   if (dx && points.length) {
     for (const p of points) {
@@ -79,11 +75,18 @@ for (let i = 0; i <= numSegments; i++) {
 const gravity = 0.85;
 const friction = 0.99;          // higher = less damping = livelier, bouncier swings
 const dragStrength = 0.22;      // lower = more lag/stretch while you're dragging
+// Fewer iterations plus a softer per-iteration correction means the
+// rope no longer snaps back to its resting length almost instantly
+// (which read as one stiff, rigid swing) - segments now settle into
+// place with a visible, natural wave instead.
 const constraintIterations = 2; // fewer = stretchier, less rigid rope
 const stiffness = 0.4;          // lower = the ribbon can stretch further before snapping back
 const windStrength = 0.045;     // tiny constant sway so it never looks totally frozen at rest
 
 // ---- Spin & tilt ("turning around") ----
+// Not dragged directly - built from the swing's own velocity, then
+// damped like everything else here, so it coasts and settles instead
+// of snapping.
 let spin = 0;            // rotateY - free to end up facing either way
 let spinVelocity = 0;
 const spinTorque = 0.02;
@@ -153,6 +156,8 @@ function updatePoints() {
   }
 
   if (dragging) {
+    // Easing toward the cursor (rather than snapping to it) gives the
+    // ribbon room to stretch, so letting go feels like a real bounce.
     const last = points[points.length - 1];
     last.x += (target.x - last.x) * dragStrength;
     last.y += (target.y - last.y) * dragStrength;
@@ -168,6 +173,8 @@ function applyConstraints() {
       const dy = p2.y - p1.y;
       const dist = Math.sqrt(dx * dx + dy * dy) || 0.0001;
       const diff = (dist - segmentLength) / dist;
+      // Multiplying by "stiffness" (< 1) makes this a soft spring
+      // correction instead of a hard, instantly-rigid one.
       const offsetX = dx * 0.5 * diff * stiffness;
       const offsetY = dy * 0.5 * diff * stiffness;
 
@@ -195,7 +202,7 @@ function updateSpinAndTilt() {
   spin += spinVelocity;
 
   tiltVelocity += vy * tiltTorque;
-  tiltVelocity += -tiltX * tiltRestoring;
+  tiltVelocity += -tiltX * tiltRestoring; // gravity easing it back flat
   tiltVelocity *= tiltDamping;
   tiltX += tiltVelocity;
   if (tiltX > tiltLimit) { tiltX = tiltLimit; tiltVelocity = 0; }
@@ -203,12 +210,15 @@ function updateSpinAndTilt() {
 }
 
 // ---- Rendering ----
-const ribbonColor = '#ff8fc4';
+const ribbonColor = '#4ade80'; // vibrant green string, in place of the old pink
 const baseWidth = 14;
 
 function draw() {
   ctx.clearRect(0, 0, width, height);
 
+  // Draw the string as a flat ribbon (a rectangle per segment) instead
+  // of a round cord. Segments get slightly thinner when stretched past
+  // their resting length, like a real elastic strap.
   for (let i = 0; i < points.length - 1; i++) {
     const p1 = points[i];
     const p2 = points[i + 1];
@@ -231,11 +241,14 @@ function draw() {
     ctx.fill();
   }
 
+  // Move and rotate the card to follow the last two points of the rope
   const last = points[points.length - 1];
   const prev = points[points.length - 2];
   const angle = Math.atan2(last.x - prev.x, last.y - prev.y) * (180 / Math.PI);
 
   card.style.transform = `translate(${last.x}px, ${last.y}px) rotateZ(${angle}deg)`;
+  // The spin/tilt live on the inner wrapper so they compose with (but
+  // don't fight) the swing rotation above.
   flip.style.transform = `rotateX(${tiltX}deg) rotateY(${spin}deg)`;
 }
 
