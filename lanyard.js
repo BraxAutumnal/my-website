@@ -1,9 +1,9 @@
 // ---- Draggable lanyard badge ----
 // The string is simulated as a rope of connected points (verlet
 // integration): each point falls under gravity and gets pulled back
-// toward its neighbors to keep the segments a fixed length apart.
-// The card is a normal HTML element that we move to match the last
-// point in the rope every frame, so it looks like it's hanging off it.
+// toward its neighbors to keep the segments roughly a fixed length
+// apart. The correction is partial (not fully rigid), which is what
+// lets the ribbon visibly stretch under load and spring back after.
 
 const container = document.getElementById('lanyard-container');
 const canvas = document.getElementById('lanyard-canvas');
@@ -23,7 +23,7 @@ resize();
 // ---- Rope setup ----
 const numSegments = 9;
 const segmentLength = 26;
-// The anchor sits just above the visible area, so the string looks
+// The anchor sits just above the visible area so the string looks
 // like it's coming from off-screen instead of showing a dot where
 // it's pinned.
 const anchor = { x: width / 2, y: -40 };
@@ -39,10 +39,11 @@ for (let i = 0; i <= numSegments; i++) {
   });
 }
 
-const gravity = 0.7;
-const friction = 0.99;       // higher = less damping = livelier, bouncier swings
-const dragStrength = 0.3;    // how strongly the card eases toward your cursor
-const constraintIterations = 6;
+const gravity = 0.85;
+const friction = 0.99;          // higher = less damping = livelier, bouncier swings
+const dragStrength = 0.22;      // lower = more lag/stretch while you're dragging
+const constraintIterations = 3; // fewer = stretchier, less rigid rope
+const stiffness = 0.55;         // lower = the ribbon can stretch further before snapping back
 
 // ---- Dragging ----
 let dragging = false;
@@ -97,9 +98,8 @@ function updatePoints() {
   }
 
   if (dragging) {
-    // Easing toward the cursor instead of snapping straight to it
-    // gives the string some give, so letting go feels like a real
-    // bounce instead of a hard stop.
+    // Easing toward the cursor (rather than snapping to it) gives the
+    // ribbon room to stretch, so letting go feels like a real bounce.
     const last = points[points.length - 1];
     last.x += (target.x - last.x) * dragStrength;
     last.y += (target.y - last.y) * dragStrength;
@@ -115,8 +115,10 @@ function applyConstraints() {
       const dy = p2.y - p1.y;
       const dist = Math.sqrt(dx * dx + dy * dy) || 0.0001;
       const diff = (dist - segmentLength) / dist;
-      const offsetX = dx * 0.5 * diff;
-      const offsetY = dy * 0.5 * diff;
+      // Multiplying by "stiffness" (< 1) makes this a soft spring
+      // correction instead of a hard, instantly-rigid one.
+      const offsetX = dx * 0.5 * diff * stiffness;
+      const offsetY = dy * 0.5 * diff * stiffness;
 
       if (!p1.pinned) {
         p1.x += offsetX;
@@ -133,21 +135,45 @@ function applyConstraints() {
 }
 
 // ---- Rendering ----
+const ribbonColor = '#ff8fc4';
+const baseWidth = 14;
+
 function draw() {
   ctx.clearRect(0, 0, width, height);
 
-  // The string. Its top point sits off-screen (see anchor above),
-  // so nothing shows where it's actually pinned.
-  ctx.beginPath();
-  ctx.moveTo(points[0].x, points[0].y);
-  for (let i = 1; i < points.length; i++) {
-    ctx.lineTo(points[i].x, points[i].y);
+  // Draw the string as a flat ribbon (a rectangle per segment) instead
+  // of a round cord. Segments get slightly thinner when stretched past
+  // their resting length, like a real elastic strap.
+  for (let i = 0; i < points.length - 1; i++) {
+    const p1 = points[i];
+    const p2 = points[i + 1];
+    const dx = p2.x - p1.x;
+    const dy = p2.y - p1.y;
+    const len = Math.sqrt(dx * dx + dy * dy) || 0.0001;
+    const nx = -dy / len;
+    const ny = dx / len;
+
+    const stretch = segmentLength / len;
+    const w = (baseWidth * Math.min(1.15, Math.max(0.65, stretch))) / 2;
+
+    ctx.beginPath();
+    ctx.moveTo(p1.x + nx * w, p1.y + ny * w);
+    ctx.lineTo(p2.x + nx * w, p2.y + ny * w);
+    ctx.lineTo(p2.x - nx * w, p2.y - ny * w);
+    ctx.lineTo(p1.x - nx * w, p1.y - ny * w);
+    ctx.closePath();
+    ctx.fillStyle = ribbonColor;
+    ctx.fill();
   }
-  ctx.strokeStyle = '#ff8fc4';
-  ctx.lineWidth = 6;
-  ctx.lineCap = 'round';
-  ctx.lineJoin = 'round';
-  ctx.stroke();
+
+  // Round off the joints between segments so the ribbon reads as one
+  // continuous strip instead of separate rectangles.
+  for (let i = 1; i < points.length - 1; i++) {
+    ctx.beginPath();
+    ctx.arc(points[i].x, points[i].y, baseWidth / 2, 0, Math.PI * 2);
+    ctx.fillStyle = ribbonColor;
+    ctx.fill();
+  }
 
   // Move and rotate the card to follow the last two points of the rope
   const last = points[points.length - 1];
