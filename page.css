@@ -27,26 +27,11 @@ p {
   color: #d6336c;
 }
 
-/* Floating decorative emoji, placed near the page edges so they
-   never sit under your main text */
-.cute-decor {
-  position: fixed;
-  inset: 0;
-  pointer-events: none; /* lets clicks pass straight through them */
-  z-index: 0;
-}
-
-.cute-decor span {
-  position: absolute;
-  font-size: 28px;
-  opacity: 0.55;
-}
-
 /* ---- About Me card ---- */
 
 .about-card {
   position: relative;
-  z-index: 1; /* sit above the floating decor */
+  z-index: 1;
   max-width: 640px;
   margin: 40px 24px;
   border-radius: 14px;
@@ -72,12 +57,19 @@ p {
   padding: 20px;
 }
 
+/* Matches the pixel font used everywhere else on the site (headers,
+   the lanyard tag/name, the intro line) so the About Me box doesn't
+   suddenly read in a different typeface. Kept at a modest size and
+   regular weight rather than the bigger, bolder look used for
+   headings, so a full paragraph of it still reads comfortably. */
 .about-card-body p {
   margin: 0 0 16px;
   padding: 0;
+  font-family: 'Pixelify Sans', cursive, sans-serif;
+  font-weight: 400;
   color: #b4477c;
-  font-size: 15px;
-  line-height: 1.5;
+  font-size: 16px;
+  line-height: 1.6;
 }
 
 .about-links {
@@ -105,4 +97,13 @@ p {
   width: 24px;
   height: 24px;
   object-fit: contain;
+}
+
+/* The Carrd logo reads noticeably smaller than the VGen logo at the
+   same box size, so it gets its own size bump instead of enlarging
+   both icons. This only changes the image size - the link/function
+   is untouched. */
+.about-links img.icon-carrd {
+  width: 34px;
+  height: 34px;
 }
