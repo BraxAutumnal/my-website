@@ -1,64 +1,56 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>My Website</title>
-  <link rel="stylesheet" href="page.css">
-  <link rel="stylesheet" href="lanyard.css">
+<title>My Website</title>
+<link rel="stylesheet" href="page.css">
+<link rel="stylesheet" href="lanyard.css">
 </head>
 <body>
-  <div class="cute-decor" aria-hidden="true">
-    <span style="top:8%; left:6%;">✨</span>
-    <span style="top:35%; left:88%;">🌸</span>
-    <span style="top:75%; left:12%;">🦊</span>
-    <span style="top:88%; left:70%;">💗</span>
-    <span style="top:55%; left:4%;">🍂</span>
-  </div>
 
-  <!-- Lanyard now lives in its own header-height slot at the top of the
-       page instead of floating fixed over everything, so it can't ever
-       sit on top of the About Me card below it. -->
-  <div id="lanyard-container">
-    <canvas id="lanyard-canvas"></canvas>
-    <div id="lanyard-card">
-      <div class="lanyard-flip">
-        <div class="lanyard-face lanyard-face-front">
-          <div class="lanyard-tag">ALL ACCESS</div>
-          <img src="BraxSuit.jpg" alt="Brax" class="lanyard-photo">
-          <div class="lanyard-face-text">
-            <h2>Brax</h2>
-            <p>he/him · full-time wolverine</p>
-          </div>
+<!-- Lanyard lives in its own header-height slot at the top of the
+     page instead of floating fixed over everything, so it can't ever
+     sit on top of the About Me card below it. -->
+<div id="lanyard-container">
+  <canvas id="lanyard-canvas"></canvas>
+  <div id="lanyard-card">
+    <div class="lanyard-flip">
+      <div class="lanyard-face lanyard-face-front">
+        <div class="lanyard-tag">ALL ACCESS</div>
+        <img src="BraxSuit.jpg" alt="Brax" class="lanyard-photo">
+        <div class="lanyard-face-text">
+          <h2>Brax</h2>
+          <p>he/him · full-time wolverine</p>
         </div>
-        <div class="lanyard-face lanyard-face-back">
-          <span class="lanyard-back-emoji">🦊</span>
-          <p class="lanyard-back-text">flip me back!</p>
-        </div>
+      </div>
+      <div class="lanyard-face lanyard-face-back">
+        <p class="lanyard-back-text">flip me back!</p>
       </div>
     </div>
   </div>
+</div>
 
-  <h1>🦊 Hey there!!!! 🌸</h1>
-  <p class="intro-text">Brax is here :3</p>
+<h1>Hey there!!!!</h1>
+<p class="intro-text">Brax is here :3</p>
 
-  <section class="about-card">
-    <div class="about-card-header">
-      <h2>About Me</h2>
+<section class="about-card">
+  <div class="about-card-header">
+    <h2>About Me</h2>
+  </div>
+  <div class="about-card-body">
+    <p>
+      Hey there. I'm Brax, your local autumnal wolverine! Welcome to my website :D
+    </p>
+    <div class="about-links">
+      <a href="https://vsona.vgen.co/brax" target="_blank" rel="noopener">
+        <img src="Vgenlogo.png" alt="VGen">
+      </a>
+      <a href="https://braxs.carrd.co/" target="_blank" rel="noopener">
+        <img src="carrd.png" alt="Carrd" class="icon-carrd">
+      </a>
     </div>
-    <div class="about-card-body">
-      <p>
-        Hey there. I'm Brax, your local autumnal wolverine! Welcome to my website :D
-      </p>
-      <div class="about-links">
-        <a href="https://vsona.vgen.co/brax" target="_blank" rel="noopener">
-          <img src="Vgenlogo.png" alt="VGen">
-        </a>
-        <a href="https://braxs.carrd.co/" target="_blank" rel="noopener">
-          <img src="carrd.png" alt="Carrd">
-        </a>
-      </div>
-    </div>
-  </section>
+  </div>
+</section>
 
-  <script src="lanyard.js"></script>
+<script src="lanyard.js"></script>
 </body>
 </html>
