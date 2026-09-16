@@ -1,6 +1,10 @@
-@import url('https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;700&display=swap');
-
-/* ---- Draggable lanyard badge ---- */
+/* ============================================================
+   lanyard.css — draggable lanyard badge
+   Colors and fonts now come from the tokens defined in
+   page.css's :root, instead of hardcoded duplicates, so this
+   file and page.css can never visually drift apart again.
+   Requires page.css to be loaded first (it already is).
+   ============================================================ */
 
 /* No longer a fixed full-viewport overlay - it's a normal block at the
    top of the page now, so everything after it (the h1, the About Me
@@ -66,25 +70,20 @@
   flex-direction: column;
   align-items: center;
   border-radius: 16px;
-  border: 4px solid 
-#6ee7a8;
-  box-shadow: 4px 4px 0 
-#22c55e; /* hard-edged shadow = the cute/pixel-sticker look */
+  border: 4px solid var(--mint-border);
+  box-shadow: 4px 4px 0 var(--leaf-green); /* hard-edged shadow = the cute/pixel-sticker look */
   backface-visibility: hidden;
   overflow: hidden;
 }
 
 .lanyard-face-front {
-  background: 
-#e8fff0;
+  background: var(--mint-light);
   padding: 14px;
   gap: 10px;
 }
 
 .lanyard-face-back {
-  background: linear-gradient(160deg, 
-#e8fff0, 
-#c8f5d9);
+  background: linear-gradient(160deg, var(--mint-light), var(--mint-mid));
   transform: rotateY(180deg);
   justify-content: center;
   gap: 8px;
@@ -99,11 +98,9 @@
 .lanyard-tag {
   align-self: stretch;
   text-align: center;
-  background: linear-gradient(135deg, 
-#6ee7a8, 
-#22c55e);
+  background: linear-gradient(135deg, var(--mint-border), var(--leaf-green));
   color: #fff;
-  font-family: 'Pixelify Sans', cursive, sans-serif;
+  font-family: var(--font-display);
   font-size: 12px;
   letter-spacing: 1px;
   padding: 4px 0;
@@ -116,8 +113,7 @@
   border-radius: 10px; /* rectangular photo, not a circle */
   object-fit: cover;
   background: #fff;
-  border: 3px solid 
-#22c55e;
+  border: 3px solid var(--leaf-green);
 }
 
 .lanyard-face-text {
@@ -126,24 +122,24 @@
 
 .lanyard-face-text h2 {
   margin: 0;
-  font-family: 'Pixelify Sans', cursive, sans-serif;
+  font-family: var(--font-display);
   font-size: 20px;
-  color: #000;
+  color: var(--ink);
 }
 
 .lanyard-face-text p {
   margin: 4px 0 0;
   padding: 0;
-  font-family: 'Trebuchet MS', 'Segoe UI', sans-serif;
+  font-family: var(--font-body);
   font-size: 12px;
-  color: #000;
+  color: var(--ink);
 }
 
 .lanyard-back-text {
   margin: 0;
-  font-family: 'Pixelify Sans', cursive, sans-serif;
+  font-family: var(--font-display);
   font-size: 14px;
-  color: #000;
+  color: var(--ink);
 }
 
 @media (max-width: 480px) {
