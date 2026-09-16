@@ -1,138 +1,154 @@
-(() => {
-  const container = document.getElementById('lanyard-container');
-  const canvas = document.getElementById('lanyard-canvas');
-  const card = document.getElementById('lanyard-card');
-  const flip = card.querySelector('.lanyard-flip');
-  const ctx = canvas.getContext('2d');
+@import url('https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;700&display=swap');
 
-  const MAX_DRAG_Y = 220;   // how far down the badge can be pulled before it "resists"
-  const MAX_TILT_DEG = 35;  // max swing angle while dragging
+/* ---- Draggable lanyard badge ---- */
 
-  let anchorX = 0;                // x position of the fixed lanyard clip at the top
-  let offsetX = 0, offsetY = 0;   // current displacement of the card from its resting spot
-  let velX = 0, velY = 0;         // velocity used by the spring-back animation
-  let dragging = false;
-  let dragStartX = 0, dragStartY = 0;
-  let pointerStartX = 0, pointerStartY = 0;
-  let moved = false;
-  let flipped = false;
-  let springAnim = null;
+/* No longer a fixed full-viewport overlay - it's a normal block at the
+   top of the page now, so everything after it (the h1, the About Me
+   card) naturally flows below it instead of getting covered. */
+#lanyard-container {
+  position: relative;
+  width: 100%;
+  height: 600px;
+  overflow: visible;
+  pointer-events: none; /* lets clicks pass through the empty space around the card */
+  perspective: 1200px;  /* gives the flip/tilt below real depth instead of a flat squash */
+}
 
-  function layout() {
-    anchorX = container.clientWidth / 2;
-    card.style.left = anchorX + 'px'; // pairs with the CSS margin-left:-110px to center it
-    resizeCanvas();
-    render();
-  }
+/* lanyard.js sizes this canvas taller than the container itself so the
+   ribbon has room to draw all the way down even when the badge is
+   dragged well past the container's resting height - it never runs
+   out of drawing surface and disappears. */
+#lanyard-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1;
+}
 
-  function resizeCanvas() {
-    const dpr = window.devicePixelRatio || 1;
-    const width = container.clientWidth;
-    const height = container.clientHeight + MAX_DRAG_Y + 40;
-    canvas.style.height = height + 'px';
-    canvas.width = width * dpr;
-    canvas.height = height * dpr;
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-  }
+/* Rectangular, portrait badge - like a real event/ID badge instead of
+   a round-photo fursona sticker. */
+#lanyard-card {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 220px;
+  height: 320px;
+  margin-left: -110px;      /* centers the card on its attachment point */
+  transform-origin: 50% 0;  /* rotates around the string, not the middle */
+  transform-style: preserve-3d;
+  pointer-events: auto;
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+  z-index: 2;
+}
 
-  function render() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+#lanyard-card:active {
+  cursor: grabbing;
+}
 
-    const cardTopX = anchorX + offsetX;
-    const cardTopY = Math.max(0, offsetY);
+/* This inner wrapper is what actually spins/tilts in 3D (independent
+   of the outer card's swing rotation), so the card can turn around to
+   show its back face. */
+.lanyard-flip {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+}
 
-    // ribbon
-    ctx.strokeStyle = '#22c55e';
-    ctx.lineWidth = 14;
-    ctx.lineCap = 'round';
-    ctx.beginPath();
-    ctx.moveTo(anchorX, 0);
-    ctx.lineTo(cardTopX, cardTopY);
-    ctx.stroke();
+.lanyard-face {
+  position: absolute;
+  inset: 0;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border-radius: 16px;
+  border: 4px solid 
+#6ee7a8;
+  box-shadow: 4px 4px 0 
+#22c55e; /* hard-edged shadow = the cute/pixel-sticker look */
+  backface-visibility: hidden;
+  overflow: hidden;
+}
 
-    // clip at the top where the ribbon attaches
-    ctx.fillStyle = '#6ee7a8';
-    ctx.beginPath();
-    ctx.arc(anchorX, 6, 10, 0, Math.PI * 2);
-    ctx.fill();
-  }
+.lanyard-face-front {
+  background: 
+#e8fff0;
+  padding: 14px;
+  gap: 10px;
+}
 
-  function applyCardTransform() {
-    const tilt = Math.max(-MAX_TILT_DEG, Math.min(MAX_TILT_DEG, offsetX / 4));
-    card.style.transform = `translate(${offsetX}px, ${Math.max(0, offsetY)}px) rotateZ(${tilt}deg)`;
-  }
+.lanyard-face-back {
+  background: linear-gradient(160deg, 
+#e8fff0, 
+#c8f5d9);
+  transform: rotateY(180deg);
+  justify-content: center;
+  gap: 8px;
+}
 
-  function onPointerDown(e) {
-    dragging = true;
-    moved = false;
-    cancelSpring();
-    card.setPointerCapture(e.pointerId);
-    pointerStartX = e.clientX;
-    pointerStartY = e.clientY;
-    dragStartX = offsetX;
-    dragStartY = offsetY;
-  }
+.lanyard-back-gif {
+  width: 64px;   /* icon-scale, like the VGen/Carrd links in the About Me card */
+  height: auto;
+  object-fit: contain;
+}
 
-  function onPointerMove(e) {
-    if (!dragging) return;
-    const dx = e.clientX - pointerStartX;
-    const dy = e.clientY - pointerStartY;
-    if (Math.abs(dx) > 3 || Math.abs(dy) > 3) moved = true;
+.lanyard-tag {
+  align-self: stretch;
+  text-align: center;
+  background: linear-gradient(135deg, 
+#6ee7a8, 
+#22c55e);
+  color: #fff;
+  font-family: 'Pixelify Sans', cursive, sans-serif;
+  font-size: 12px;
+  letter-spacing: 1px;
+  padding: 4px 0;
+  border-radius: 6px;
+}
 
-    offsetX = dragStartX + dx;
-    offsetY = Math.max(0, dragStartY + dy);
-    if (offsetY > MAX_DRAG_Y) offsetY = MAX_DRAG_Y + (offsetY - MAX_DRAG_Y) * 0.15;
+.lanyard-photo {
+  width: 100%;
+  height: 200px;
+  border-radius: 10px; /* rectangular photo, not a circle */
+  object-fit: cover;
+  background: #fff;
+  border: 3px solid 
+#22c55e;
+}
 
-    applyCardTransform();
-    render();
-  }
+.lanyard-face-text {
+  text-align: center;
+}
 
-  function onPointerUp() {
-    if (!dragging) return;
-    dragging = false;
-    if (!moved) toggleFlip();
-    springBack();
-  }
+.lanyard-face-text h2 {
+  margin: 0;
+  font-family: 'Pixelify Sans', cursive, sans-serif;
+  font-size: 20px;
+  color: #000;
+}
 
-  function toggleFlip() {
-    flipped = !flipped;
-    flip.style.transform = flipped ? 'rotateY(180deg)' : 'rotateY(0deg)';
-  }
+.lanyard-face-text p {
+  margin: 4px 0 0;
+  padding: 0;
+  font-family: 'Trebuchet MS', 'Segoe UI', sans-serif;
+  font-size: 12px;
+  color: #000;
+}
 
-  function cancelSpring() {
-    if (springAnim) cancelAnimationFrame(springAnim);
-    springAnim = null;
-  }
+.lanyard-back-text {
+  margin: 0;
+  font-family: 'Pixelify Sans', cursive, sans-serif;
+  font-size: 14px;
+  color: #000;
+}
 
-  function springBack() {
-    const stiffness = 0.12;
-    const damping = 0.78;
-
-    function step() {
-      velX = (velX - offsetX * stiffness) * damping;
-      velY = (velY - offsetY * stiffness) * damping;
-      offsetX += velX;
-      offsetY += velY;
-
-      applyCardTransform();
-      render();
-
-      if (Math.abs(offsetX) > 0.5 || Math.abs(offsetY) > 0.5 || Math.abs(velX) > 0.5 || Math.abs(velY) > 0.5) {
-        springAnim = requestAnimationFrame(step);
-      } else {
-        offsetX = offsetY = velX = velY = 0;
-        applyCardTransform();
-        render();
-        springAnim = null;
-      }
-    }
-    springAnim = requestAnimationFrame(step);
-  }
-
-  card.addEventListener('pointerdown', onPointerDown);
-  window.addEventListener('pointermove', onPointerMove);
-  window.addEventListener('pointerup', onPointerUp);
-  window.addEventListener('resize', layout);
-
-  layout();
-})();
+@media (max-width: 480px) {
+  #lanyard-container { height: 520px; }
+  #lanyard-card { width: 190px; height: 280px; margin-left: -95px; }
+  .lanyard-face-front { padding: 10px; gap: 8px; }
+  .lanyard-photo { height: 170px; }
+}
