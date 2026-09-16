@@ -78,11 +78,36 @@
   gap: 10px;
 }
 
+/* The gif fills the back face as its background - object-position/
+   background-size: cover keeps it filling the card without distorting
+   it, whatever the gif's own aspect ratio is. */
 .lanyard-face-back {
-  background: linear-gradient(160deg, #ffe1f0, #ffc2e0);
+  background-image: url('BraxExcited.gif');
+  background-size: cover;
+  background-position: center;
   transform: rotateY(180deg);
   justify-content: center;
   gap: 8px;
+  position: relative; /* so the ::before overlay below is positioned against this face */
+}
+
+/* A soft light layer between the gif and the text, purely so "flip me
+   back!" stays readable over whatever busy frame of the gif happens
+   to be playing - doesn't change the gif itself. */
+.lanyard-face-back::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 225, 240, 0.55);
+}
+
+.lanyard-back-text {
+  position: relative; /* sits above the ::before overlay */
+  z-index: 1;
+  margin: 0;
+  font-family: 'Pixelify Sans', cursive, sans-serif;
+  font-size: 14px;
+  color: #d6336c;
 }
 
 .lanyard-tag {
@@ -123,13 +148,6 @@
   font-family: 'Trebuchet MS', 'Segoe UI', sans-serif;
   font-size: 12px;
   color: #b4477c;
-}
-
-.lanyard-back-text {
-  margin: 0;
-  font-family: 'Pixelify Sans', cursive, sans-serif;
-  font-size: 14px;
-  color: #d6336c;
 }
 
 @media (max-width: 480px) {
