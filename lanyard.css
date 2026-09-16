@@ -120,7 +120,7 @@
   margin: 0;
   font-family: 'Pixelify Sans', cursive, sans-serif;
   font-size: 20px;
-  color: #15803d;
+  color: #000;
 }
 
 .lanyard-face-text p {
@@ -128,14 +128,14 @@
   padding: 0;
   font-family: 'Trebuchet MS', 'Segoe UI', sans-serif;
   font-size: 12px;
-  color: #2f8f5c;
+  color: #000;
 }
 
 .lanyard-back-text {
   margin: 0;
   font-family: 'Pixelify Sans', cursive, sans-serif;
   font-size: 14px;
-  color: #15803d;
+  color: #000;
 }
 
 @media (max-width: 480px) {
