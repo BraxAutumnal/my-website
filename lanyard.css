@@ -101,6 +101,22 @@
   letter-spacing: 1px;
   padding: 4px 0;
   border-radius: 6px;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.lanyard-tag-track {
+  display: inline-flex;
+  animation: lanyard-marquee 6s linear infinite;
+}
+
+.lanyard-tag-track span {
+  padding-right: 2em;
+}
+
+@keyframes lanyard-marquee {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
 }
 
 .lanyard-photo {
