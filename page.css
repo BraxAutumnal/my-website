@@ -66,25 +66,20 @@
   flex-direction: column;
   align-items: center;
   border-radius: 16px;
-  border: 4px solid 
-#6ee7a8;
-  box-shadow: 4px 4px 0 
-#22c55e; /* hard-edged shadow = the cute/pixel-sticker look */
+  border: 4px solid #6ee7a8;
+  box-shadow: 4px 4px 0 #22c55e; /* hard-edged shadow = the cute/pixel-sticker look */
   backface-visibility: hidden;
   overflow: hidden;
 }
 
 .lanyard-face-front {
-  background: 
-#e8fff0;
+  background: #e8fff0;
   padding: 14px;
   gap: 10px;
 }
 
 .lanyard-face-back {
-  background: linear-gradient(160deg, 
-#e8fff0, 
-#c8f5d9);
+  background: linear-gradient(160deg, #e8fff0, #c8f5d9);
   transform: rotateY(180deg);
   justify-content: center;
   gap: 8px;
@@ -99,9 +94,7 @@
 .lanyard-tag {
   align-self: stretch;
   text-align: center;
-  background: linear-gradient(135deg, 
-#6ee7a8, 
-#22c55e);
+  background: linear-gradient(135deg, #6ee7a8, #22c55e);
   color: #fff;
   font-family: 'Pixelify Sans', cursive, sans-serif;
   font-size: 12px;
@@ -116,8 +109,7 @@
   border-radius: 10px; /* rectangular photo, not a circle */
   object-fit: cover;
   background: #fff;
-  border: 3px solid 
-#22c55e;
+  border: 3px solid #22c55e;
 }
 
 .lanyard-face-text {
