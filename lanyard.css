@@ -103,7 +103,7 @@
 }
 
 .lanyard-back-gif {
-  width: 45%;
+  width: 64px;   /* icon-scale, like the VGen/Carrd links in the About Me card */
   height: auto;
   object-fit: contain;
 }
