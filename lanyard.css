@@ -78,36 +78,38 @@
   gap: 10px;
 }
 
-/* The gif fills the back face as its background - object-position/
-   background-size: cover keeps it filling the card without distorting
-   it, whatever the gif's own aspect ratio is. */
+/* A real <img> now (like the front face's photo), rather than a CSS
+   background-image, so the browser is guaranteed to request and
+   render it the same reliable way it does BraxSuit.jpg. Positioned to
+   fill the whole face, cropped (not stretched) to cover it. */
 .lanyard-face-back {
-  background-image: url('BraxExcited.gif');
-  background-size: cover;
-  background-position: center;
   transform: rotateY(180deg);
   justify-content: center;
+  align-items: center;
   gap: 8px;
-  position: relative; /* so the ::before overlay below is positioned against this face */
 }
 
-/* A soft light layer between the gif and the text, purely so "flip me
-   back!" stays readable over whatever busy frame of the gif happens
-   to be playing - doesn't change the gif itself. */
-.lanyard-face-back::before {
-  content: '';
+.lanyard-back-gif {
   position: absolute;
   inset: 0;
-  background: rgba(255, 225, 240, 0.55);
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 0;
 }
 
+/* A small readable "chip" behind the text instead of tinting the
+   whole gif, so the gif itself stays fully visible. */
 .lanyard-back-text {
-  position: relative; /* sits above the ::before overlay */
+  position: relative;
   z-index: 1;
   margin: 0;
   font-family: 'Pixelify Sans', cursive, sans-serif;
   font-size: 14px;
   color: #d6336c;
+  background: rgba(255, 225, 240, 0.75);
+  padding: 4px 10px;
+  border-radius: 8px;
 }
 
 .lanyard-tag {
