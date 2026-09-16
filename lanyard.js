@@ -2,8 +2,10 @@
 // The string is simulated as a rope of connected points (verlet
 // integration): each point falls under gravity and gets pulled back
 // toward its neighbors to keep the segments roughly a fixed length
-// apart. The correction is partial (not fully rigid), which is what
-// lets the ribbon visibly stretch under load and spring back after.
+// apart. The correction is intentionally soft/partial (not fully
+// rigid), which is what lets the ribbon visibly stretch under load
+// and settle with a natural, wavy wobble after you let go instead of
+// snapping back like a stiff rod.
 //
 // On top of that swing, the card itself gets its own independent spin
 // and tilt, driven by how fast the last point of the rope is moving.
@@ -22,9 +24,14 @@ const ctx = canvas.getContext('2d');
 let width, height;
 function resize() {
   width = container.offsetWidth;
-  height = container.offsetHeight;
+  // The drawing surface is made noticeably taller than the container's
+  // own height, so the badge can be dragged well past the container's
+  // resting height (or toward the bottom of a tall window) without the
+  // rope running out of canvas to draw on and disappearing.
+  height = Math.max(container.offsetHeight, window.innerHeight) * 2;
   canvas.width = width;
   canvas.height = height;
+  canvas.style.height = height + 'px';
 }
 window.addEventListener('resize', resize);
 resize();
@@ -51,8 +58,12 @@ for (let i = 0; i <= numSegments; i++) {
 const gravity = 0.85;
 const friction = 0.99;          // higher = less damping = livelier, bouncier swings
 const dragStrength = 0.22;      // lower = more lag/stretch while you're dragging
-const constraintIterations = 4; // fewer = stretchier, less rigid rope
-const stiffness = 0.55;         // lower = the ribbon can stretch further before snapping back
+// Fewer iterations plus a softer per-iteration correction means the
+// rope no longer snaps back to its resting length almost instantly
+// (which read as one stiff, rigid swing) - segments now settle into
+// place with a visible, natural wave instead.
+const constraintIterations = 2; // fewer = stretchier, less rigid rope
+const stiffness = 0.4;          // lower = the ribbon can stretch further before snapping back
 const windStrength = 0.045;     // tiny constant sway so it never looks totally frozen at rest
 
 // ---- Spin & tilt ("turning around") ----
