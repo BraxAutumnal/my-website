@@ -23,7 +23,10 @@ resize();
 // ---- Rope setup ----
 const numSegments = 9;
 const segmentLength = 26;
-const anchor = { x: width / 2, y: 10 };
+// The anchor sits just above the visible area, so the string looks
+// like it's coming from off-screen instead of showing a dot where
+// it's pinned.
+const anchor = { x: width / 2, y: -40 };
 
 let points = [];
 for (let i = 0; i <= numSegments; i++) {
@@ -37,7 +40,8 @@ for (let i = 0; i <= numSegments; i++) {
 }
 
 const gravity = 0.7;
-const friction = 0.985;
+const friction = 0.99;       // higher = less damping = livelier, bouncier swings
+const dragStrength = 0.3;    // how strongly the card eases toward your cursor
 const constraintIterations = 6;
 
 // ---- Dragging ----
@@ -82,21 +86,8 @@ window.addEventListener('touchend', endDrag);
 
 // ---- Physics ----
 function updatePoints() {
-  const last = points[points.length - 1];
-
-  if (dragging) {
-    // Setting oldx/oldy to the previous frame's position before
-    // snapping to the target means the point automatically carries
-    // that motion as velocity once you let go, so it swings naturally.
-    last.oldx = last.x;
-    last.oldy = last.y;
-    last.x = target.x;
-    last.y = target.y;
-  }
-
   for (const p of points) {
     if (p.pinned) continue;
-    if (dragging && p === last) continue;
     const vx = (p.x - p.oldx) * friction;
     const vy = (p.y - p.oldy) * friction;
     p.oldx = p.x;
@@ -104,10 +95,18 @@ function updatePoints() {
     p.x += vx;
     p.y += vy + gravity;
   }
+
+  if (dragging) {
+    // Easing toward the cursor instead of snapping straight to it
+    // gives the string some give, so letting go feels like a real
+    // bounce instead of a hard stop.
+    const last = points[points.length - 1];
+    last.x += (target.x - last.x) * dragStrength;
+    last.y += (target.y - last.y) * dragStrength;
+  }
 }
 
 function applyConstraints() {
-  const last = points[points.length - 1];
   for (let iter = 0; iter < constraintIterations; iter++) {
     for (let i = 0; i < points.length - 1; i++) {
       const p1 = points[i];
@@ -119,11 +118,11 @@ function applyConstraints() {
       const offsetX = dx * 0.5 * diff;
       const offsetY = dy * 0.5 * diff;
 
-      if (!p1.pinned && !(dragging && p1 === last)) {
+      if (!p1.pinned) {
         p1.x += offsetX;
         p1.y += offsetY;
       }
-      if (!p2.pinned && !(dragging && p2 === last)) {
+      if (!p2.pinned) {
         p2.x -= offsetX;
         p2.y -= offsetY;
       }
@@ -137,23 +136,18 @@ function applyConstraints() {
 function draw() {
   ctx.clearRect(0, 0, width, height);
 
-  // The string
+  // The string. Its top point sits off-screen (see anchor above),
+  // so nothing shows where it's actually pinned.
   ctx.beginPath();
   ctx.moveTo(points[0].x, points[0].y);
   for (let i = 1; i < points.length; i++) {
     ctx.lineTo(points[i].x, points[i].y);
   }
-  ctx.strokeStyle = '#b1472e';
-  ctx.lineWidth = 7;
+  ctx.strokeStyle = '#ff8fc4';
+  ctx.lineWidth = 6;
   ctx.lineCap = 'round';
   ctx.lineJoin = 'round';
   ctx.stroke();
-
-  // The clip where it attaches at the top
-  ctx.beginPath();
-  ctx.arc(points[0].x, points[0].y, 6, 0, Math.PI * 2);
-  ctx.fillStyle = '#9a9a9a';
-  ctx.fill();
 
   // Move and rotate the card to follow the last two points of the rope
   const last = points[points.length - 1];
