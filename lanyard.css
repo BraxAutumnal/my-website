@@ -93,7 +93,7 @@
 
 .lanyard-tag {
   align-self: stretch;
-  text-align: center;
+  text-align: left;  /* left-anchored so the marquee math lines up cleanly */
   background: linear-gradient(135deg, #6ee7a8, #22c55e);
   color: #fff;
   font-family: 'Pixelify Sans', cursive, sans-serif;
@@ -106,17 +106,18 @@
 }
 
 .lanyard-tag-track {
-  display: inline-flex;
-  animation: lanyard-marquee 6s linear infinite;
+  display: inline-block;
+  animation: lanyard-marquee 8s linear infinite;
 }
 
 .lanyard-tag-track span {
-  padding-right: 2em;
+  display: inline-block;
+  padding-left: 100%;
 }
 
 @keyframes lanyard-marquee {
-  from { transform: translateX(0); }
-  to   { transform: translateX(-50%); }
+  from { transform: translate(0, 0); }
+  to   { transform: translate(-100%, 0); }
 }
 
 .lanyard-photo {
