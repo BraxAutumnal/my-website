@@ -14,6 +14,29 @@
     <span style="top:55%; left:4%;">🍂</span>
   </div>
 
+  <!-- Lanyard now lives in its own header-height slot at the top of the
+       page instead of floating fixed over everything, so it can't ever
+       sit on top of the About Me card below it. -->
+  <div id="lanyard-container">
+    <canvas id="lanyard-canvas"></canvas>
+    <div id="lanyard-card">
+      <div class="lanyard-flip">
+        <div class="lanyard-face lanyard-face-front">
+          <div class="lanyard-tag">ALL ACCESS</div>
+          <img src="BraxSuit.jpg" alt="Brax" class="lanyard-photo">
+          <div class="lanyard-face-text">
+            <h2>Brax</h2>
+            <p>he/him · full-time wolverine</p>
+          </div>
+        </div>
+        <div class="lanyard-face lanyard-face-back">
+          <span class="lanyard-back-emoji">🦊</span>
+          <p class="lanyard-back-text">flip me back!</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <h1>🦊 Hey there!!!! 🌸</h1>
   <p class="intro-text">Brax is here :3</p>
 
@@ -35,17 +58,6 @@
       </div>
     </div>
   </section>
-
-  <div id="lanyard-container">
-    <canvas id="lanyard-canvas"></canvas>
-    <div id="lanyard-card">
-      <div class="lanyard-card-inner">
-        <img src="BraxSuit.jpg" alt="Brax" class="lanyard-photo">
-        <h2>Brax</h2>
-        <p>he/him · full-time wolverine</p>
-      </div>
-    </div>
-  </div>
 
   <script src="lanyard.js"></script>
 </body>
