@@ -3,7 +3,7 @@
 body {
   margin: 0;
   min-height: 100vh;
-  background: linear-gradient(180deg, #ffe1f0 0%, #ffc2e0 100%);
+  background: #ffe1f0;
   font-family: 'Trebuchet MS', 'Segoe UI', sans-serif;
   color: #b4477c;
 }
@@ -13,6 +13,7 @@ h1 {
   color: #d6336c;
   padding: 32px 24px 0;
   margin: 0;
+  text-align: center;
 }
 
 p {
@@ -25,6 +26,7 @@ p {
   font-family: 'Pixelify Sans', cursive, sans-serif;
   font-size: 18px;
   color: #d6336c;
+  text-align: center;
 }
 
 /* ---- About Me card ---- */
@@ -33,7 +35,7 @@ p {
   position: relative;
   z-index: 1;
   max-width: 640px;
-  margin: 40px 24px;
+  margin: 40px auto;
   border-radius: 14px;
   overflow: hidden;
   border: 3px solid #ff5fa2;
@@ -43,6 +45,7 @@ p {
 .about-card-header {
   background: linear-gradient(135deg, #ff8fc4, #ff5fa2);
   padding: 16px 20px;
+  text-align: center;
 }
 
 .about-card-header h2 {
@@ -75,6 +78,7 @@ p {
 .about-links {
   display: flex;
   gap: 12px;
+  justify-content: center;
 }
 
 .about-links a {
