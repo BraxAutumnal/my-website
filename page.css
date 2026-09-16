@@ -1,163 +1,146 @@
-/* ============================================================
-   page.css — site-wide layout & theme
-   Defines the shared color/type tokens that lanyard.css also
-   uses, so the badge and the rest of the page can't drift out
-   of sync again. Load this BEFORE lanyard.css in index.html
-   (it already is: <link page.css> then <link lanyard.css>).
-   ============================================================ */
-
 @import url('https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;700&display=swap');
-
-:root {
-  /* shared palette — lanyard.css reads these too */
-  --mint-light:  #e8fff0;  /* lanyard front / card panels */
-  --mint-mid:    #c8f5d9;  /* lanyard back-face gradient stop */
-  --mint-border: #6ee7a8;  /* lanyard border / tag gradient start */
-  --leaf-green:  #22c55e;  /* lanyard shadow / tag gradient end */
-  --cream:       #faf3e7;  /* page background */
-  --ink:         #2b2118;  /* body text */
-  --ink-soft:    #6b5c4d;  /* secondary/muted text */
-  --rust:        #c9793a;  /* single warm accent — used sparingly */
-
-  /* shared type */
-  --font-display: 'Pixelify Sans', cursive, sans-serif;
-  --font-body: 'Trebuchet MS', 'Segoe UI', sans-serif;
-}
-
-*, *::before, *::after {
-  box-sizing: border-box;
-}
-
-html {
-  scroll-behavior: smooth;
-}
 
 body {
   margin: 0;
   min-height: 100vh;
-  background: var(--cream);
-  color: var(--ink);
-  font-family: var(--font-body);
-  line-height: 1.5;
-  overflow-x: hidden;
+  background: #e8fff0;
+  font-family: 'Trebuchet MS', 'Segoe UI', sans-serif;
+  color: #000;
 }
 
-/* ---- floating decorative emoji, sprinkled behind the content ---- */
-.cute-decor {
-  position: fixed;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
-}
-
-.cute-decor span {
-  position: absolute;
-  font-size: 28px;
-  opacity: 0.35;
-  animation: drift 6s ease-in-out infinite;
-}
-
-.cute-decor span:nth-child(2) { animation-delay: 1s; }
-.cute-decor span:nth-child(3) { animation-delay: 2s; }
-.cute-decor span:nth-child(4) { animation-delay: 3s; }
-.cute-decor span:nth-child(5) { animation-delay: 4s; }
-
-@keyframes drift {
-  0%, 100% { transform: translateY(0) rotate(0deg); }
-  50%      { transform: translateY(-14px) rotate(6deg); }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .cute-decor span { animation: none; }
-}
-
-/* ---- hero heading ---- */
 h1 {
-  position: relative;
-  z-index: 1;
-  margin: 0.4em auto 0;
-  padding: 0 20px;
-  max-width: 640px;
+  font-family: 'Pixelify Sans', cursive, sans-serif;
+  color: #000;
+  padding: 32px 24px 0;
+  margin: 0;
   text-align: center;
-  font-family: var(--font-display);
-  font-size: clamp(28px, 5vw, 40px);
-  color: var(--ink);
 }
 
-.intro-text {
-  position: relative;
-  z-index: 1;
-  margin: 0.4em auto 2em;
-  padding: 0 20px;
-  max-width: 640px;
-  text-align: center;
-  color: var(--ink-soft);
+p {
+  padding: 0 24px;
   font-size: 16px;
 }
 
-/* ---- About Me card — deliberately echoes the lanyard card's
-   hard-edged colored shadow + green border, so it reads as the
-   same object family instead of a different UI kit ---- */
+/* Any text you want in the pixel/gaming font — just add this class */
+.intro-text {
+  font-family: 'Pixelify Sans', cursive, sans-serif;
+  font-size: 18px;
+  color: #000;
+  text-align: center;
+}
+
+/* ---- About Me card ---- */
+
 .about-card {
   position: relative;
   z-index: 1;
-  max-width: 560px;
-  margin: 0 auto 4em;
-  background: #fffdf8;
-  border: 3px solid var(--mint-border);
-  border-radius: 16px;
-  box-shadow: 4px 4px 0 var(--leaf-green);
+  max-width: 640px;
+  margin: 40px auto;
+  border-radius: 14px;
   overflow: hidden;
+  border: 3px solid #22c55e;
+  box-shadow: 0 8px 0 #22c55e;
+  /* Starts off to the right and invisible, then slides in to its
+     resting, centered spot. Runs once on page load - not tied to
+     scroll, so it never replays. */
+  opacity: 0;
+  transform: translateX(300px);
+  animation: about-card-in 0.6s ease-out 0.1s forwards;
+}
+
+@keyframes about-card-in {
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
 
 .about-card-header {
-  background: linear-gradient(135deg, var(--mint-border), var(--leaf-green));
-  padding: 10px 20px;
+  background: linear-gradient(135deg, #6ee7a8, #22c55e);
+  padding: 16px 20px;
+  text-align: center;
 }
 
 .about-card-header h2 {
   margin: 0;
-  font-family: var(--font-display);
-  font-size: 16px;
-  letter-spacing: 0.5px;
+  font-family: 'Pixelify Sans', cursive, sans-serif;
   color: #fff;
+  font-size: 22px;
 }
 
 .about-card-body {
-  padding: 24px 28px 28px;
+  background: #fff;
+  padding: 20px;
 }
 
+/* Matches the pixel font used everywhere else on the site (headers,
+   the lanyard tag/name, the intro line) so the About Me box doesn't
+   suddenly read in a different typeface. Kept at a modest size and
+   regular weight rather than the bigger, bolder look used for
+   headings, so a full paragraph of it still reads comfortably. Each
+   paragraph gets its own bottom margin, which is what creates the
+   gap between the "Hey there..." line and the "Demisexual..." line
+   below it, since they're separate <p> tags. */
 .about-card-body p {
-  margin: 0 0 1em;
-  font-size: 15px;
-  color: var(--ink);
+  margin: 0 0 16px;
+  padding: 0;
+  font-family: 'Pixelify Sans', cursive, sans-serif;
+  font-weight: 400;
+  color: #000;
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+.about-card-body p:last-of-type {
+  margin-bottom: 16px;
 }
 
 .about-links {
   display: flex;
+  gap: 16px;
+  align-items: center;
   justify-content: center;
-  gap: 20px;
-  margin-top: 1.2em;
+}
+
+/* No circle background/border - just the icon itself, sized by
+   width/height on the <img> below. Each icon pops in with a small
+   scale-up-and-settle, once on load, staggered slightly and timed to
+   start after the card has mostly finished sliding in. */
+.about-links a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.15s ease;
+  opacity: 0;
+  transform: scale(0.3);
+  animation: icon-pop-in 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+.about-links a:nth-child(1) { animation-delay: 0.55s; }
+.about-links a:nth-child(2) { animation-delay: 0.7s; }
+
+@keyframes icon-pop-in {
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.about-links a:hover {
+  transform: translateY(-2px);
 }
 
 .about-links img {
-  height: 36px;
-  width: auto;
-  transition: transform 0.15s ease;
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
 }
 
-.about-links a:hover img,
-.about-links a:focus-visible img {
-  transform: translateY(-3px);
-}
-
-.about-links a:focus-visible {
-  outline: 3px solid var(--rust);
-  outline-offset: 3px;
-  border-radius: 6px;
-}
-
-@media (max-width: 480px) {
-  .about-card { margin-left: 16px; margin-right: 16px; }
-  .about-card-body { padding: 20px; }
+/* The Carrd logo's artwork sits with a lot of empty space inside the
+   image itself, so it reads noticeably smaller than the VGen logo
+   even at the same box size. Sized up well past the VGen icon here
+   to actually compensate for that built-in whitespace. */
+.about-links img.icon-carrd {
+  width: 52px;
+  height: 52px;
 }
