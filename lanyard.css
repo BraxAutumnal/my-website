@@ -78,11 +78,19 @@
   gap: 10px;
 }
 
+/* No more text/chip - just the gif, shrunk down and centered in the
+   face rather than filling it edge-to-edge. */
 .lanyard-face-back {
   background: linear-gradient(160deg, #e8fff0, #c8f5d9);
   transform: rotateY(180deg);
   justify-content: center;
-  gap: 8px;
+  align-items: center;
+}
+
+.lanyard-back-gif {
+  width: 60%;
+  height: auto;
+  object-fit: contain;
 }
 
 .lanyard-tag {
@@ -123,13 +131,6 @@
   font-family: 'Trebuchet MS', 'Segoe UI', sans-serif;
   font-size: 12px;
   color: #2f8f5c;
-}
-
-.lanyard-back-text {
-  margin: 0;
-  font-family: 'Pixelify Sans', cursive, sans-serif;
-  font-size: 14px;
-  color: #15803d;
 }
 
 @media (max-width: 480px) {
