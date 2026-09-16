@@ -1,154 +1,262 @@
-@import url('https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;700&display=swap');
+// ---- Draggable lanyard badge ----
+// The string is simulated as a rope of connected points (verlet
+// integration): each point falls under gravity and gets pulled back
+// toward its neighbors to keep the segments roughly a fixed length
+// apart. The correction is intentionally soft/partial (not fully
+// rigid), which is what lets the ribbon visibly stretch under load
+// and settle with a natural, wavy wobble after you let go instead of
+// snapping back like a stiff rod.
+//
+// On top of that swing, the card itself gets its own independent spin
+// and tilt, driven by how fast the last point of the rope is moving.
+// Whip it sideways and it twirls around on the string (showing the
+// back before it settles) the way flicking a real convention badge
+// does; yank it up/down and it tips, then gravity eases it back flat -
+// the same way a hanging badge doesn't stay tipped, but can happily
+// rest facing either way after a spin.
 
-/* ---- Draggable lanyard badge ---- */
+const container = document.getElementById('lanyard-container');
+const canvas = document.getElementById('lanyard-canvas');
+const card = document.getElementById('lanyard-card');
+const flip = card.querySelector('.lanyard-flip');
+const ctx = canvas.getContext('2d');
 
-/* No longer a fixed full-viewport overlay - it's a normal block at the
-   top of the page now, so everything after it (the h1, the About Me
-   card) naturally flows below it instead of getting covered. */
-#lanyard-container {
-  position: relative;
-  width: 100%;
-  height: 600px;
-  overflow: visible;
-  pointer-events: none; /* lets clicks pass through the empty space around the card */
-  perspective: 1200px;  /* gives the flip/tilt below real depth instead of a flat squash */
+// ---- Rope setup ----
+const numSegments = 9;
+const segmentLength = 26;
+// The anchor sits just above the visible area so the string looks
+// like it's coming from off-screen instead of showing a dot where
+// it's pinned.
+const anchor = { x: 0, y: -40 };
+let points = [];
+
+let width, height;
+function resize() {
+  const oldAnchorX = anchor.x;
+  width = container.offsetWidth;
+  // The drawing surface is made noticeably taller than the container's
+  // own height, so the badge can be dragged well past the container's
+  // resting height (or toward the bottom of a tall window) without the
+  // rope running out of canvas to draw on and disappearing.
+  height = Math.max(container.offsetHeight, window.innerHeight) * 2;
+  canvas.width = width;
+  canvas.height = height;
+  canvas.style.height = height + 'px';
+  anchor.x = width / 2;
+
+  // Shift every existing point (and its previous-frame position) by
+  // the same amount the anchor just moved, instead of only moving the
+  // pinned point. Moving just the anchor left the rest of the rope
+  // behind, so any resize - including fullscreen/windowed toggles -
+  // made the whole rope suddenly stretch across the gap in a single
+  // frame instead of sliding smoothly.
+  const dx = anchor.x - oldAnchorX;
+  if (dx && points.length) {
+    for (const p of points) {
+      p.x += dx;
+      p.oldx += dx;
+    }
+  }
 }
 
-/* lanyard.js sizes this canvas taller than the container itself so the
-   ribbon has room to draw all the way down even when the badge is
-   dragged well past the container's resting height - it never runs
-   out of drawing surface and disappears. */
-#lanyard-canvas {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  z-index: 1;
+window.addEventListener('resize', resize);
+resize();
+
+for (let i = 0; i <= numSegments; i++) {
+  points.push({
+    x: anchor.x,
+    y: anchor.y + i * segmentLength,
+    oldx: anchor.x,
+    oldy: anchor.y + i * segmentLength,
+    pinned: i === 0
+  });
 }
 
-/* Rectangular, portrait badge - like a real event/ID badge instead of
-   a round-photo fursona sticker. */
-#lanyard-card {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 220px;
-  height: 320px;
-  margin-left: -110px;      /* centers the card on its attachment point */
-  transform-origin: 50% 0;  /* rotates around the string, not the middle */
-  transform-style: preserve-3d;
-  pointer-events: auto;
-  cursor: grab;
-  touch-action: none;
-  user-select: none;
-  z-index: 2;
+const gravity = 0.85;
+const friction = 0.99;          // higher = less damping = livelier, bouncier swings
+const dragStrength = 0.22;      // lower = more lag/stretch while you're dragging
+// Fewer iterations plus a softer per-iteration correction means the
+// rope no longer snaps back to its resting length almost instantly
+// (which read as one stiff, rigid swing) - segments now settle into
+// place with a visible, natural wave instead.
+const constraintIterations = 2; // fewer = stretchier, less rigid rope
+const stiffness = 0.4;          // lower = the ribbon can stretch further before snapping back
+const windStrength = 0.045;     // tiny constant sway so it never looks totally frozen at rest
+
+// ---- Spin & tilt ("turning around") ----
+// Not dragged directly - built from the swing's own velocity, then
+// damped like everything else here, so it coasts and settles instead
+// of snapping.
+let spin = 0;            // rotateY - free to end up facing either way
+let spinVelocity = 0;
+const spinTorque = 0.02;
+const spinDamping = 0.94;
+
+let tiltX = 0;            // rotateX - always eases back toward flat
+let tiltVelocity = 0;
+const tiltTorque = 0.015;
+const tiltRestoring = 0.02;
+const tiltDamping = 0.9;
+const tiltLimit = 20;
+
+// ---- Dragging ----
+let dragging = false;
+let target = { x: 0, y: 0 };
+let dragOffset = { x: 0, y: 0 };
+
+function getPointerPos(e) {
+  const rect = container.getBoundingClientRect();
+  const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+  const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+  return { x: clientX - rect.left, y: clientY - rect.top };
 }
 
-#lanyard-card:active {
-  cursor: grabbing;
+function startDrag(e) {
+  dragging = true;
+  const pos = getPointerPos(e);
+  const last = points[points.length - 1];
+  dragOffset.x = last.x - pos.x;
+  dragOffset.y = last.y - pos.y;
+  e.preventDefault();
 }
 
-/* This inner wrapper is what actually spins/tilts in 3D (independent
-   of the outer card's swing rotation), so the card can turn around to
-   show its back face. */
-.lanyard-flip {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  transform-style: preserve-3d;
+function moveDrag(e) {
+  if (!dragging) return;
+  const pos = getPointerPos(e);
+  target.x = pos.x + dragOffset.x;
+  target.y = pos.y + dragOffset.y;
+  e.preventDefault();
 }
 
-.lanyard-face {
-  position: absolute;
-  inset: 0;
-  box-sizing: border-box;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  border-radius: 16px;
-  border: 4px solid 
-#6ee7a8;
-  box-shadow: 4px 4px 0 
-#22c55e; /* hard-edged shadow = the cute/pixel-sticker look */
-  backface-visibility: hidden;
-  overflow: hidden;
+function endDrag() {
+  dragging = false;
 }
 
-.lanyard-face-front {
-  background: 
-#e8fff0;
-  padding: 14px;
-  gap: 10px;
+card.addEventListener('mousedown', startDrag);
+card.addEventListener('touchstart', startDrag, { passive: false });
+window.addEventListener('mousemove', moveDrag);
+window.addEventListener('touchmove', moveDrag, { passive: false });
+window.addEventListener('mouseup', endDrag);
+window.addEventListener('touchend', endDrag);
+
+// ---- Physics ----
+let frame = 0;
+
+function updatePoints() {
+  frame++;
+  for (let i = 0; i < points.length; i++) {
+    const p = points[i];
+    if (p.pinned) continue;
+    const vx = (p.x - p.oldx) * friction;
+    const vy = (p.y - p.oldy) * friction;
+    p.oldx = p.x;
+    p.oldy = p.y;
+    p.x += vx + Math.sin(frame * 0.02 + i * 0.6) * windStrength;
+    p.y += vy + gravity;
+  }
+
+  if (dragging) {
+    // Easing toward the cursor (rather than snapping to it) gives the
+    // ribbon room to stretch, so letting go feels like a real bounce.
+    const last = points[points.length - 1];
+    last.x += (target.x - last.x) * dragStrength;
+    last.y += (target.y - last.y) * dragStrength;
+  }
 }
 
-.lanyard-face-back {
-  background: linear-gradient(160deg, 
-#e8fff0, 
-#c8f5d9);
-  transform: rotateY(180deg);
-  justify-content: center;
-  gap: 8px;
+function applyConstraints() {
+  for (let iter = 0; iter < constraintIterations; iter++) {
+    for (let i = 0; i < points.length - 1; i++) {
+      const p1 = points[i];
+      const p2 = points[i + 1];
+      const dx = p2.x - p1.x;
+      const dy = p2.y - p1.y;
+      const dist = Math.sqrt(dx * dx + dy * dy) || 0.0001;
+      const diff = (dist - segmentLength) / dist;
+      // Multiplying by "stiffness" (< 1) makes this a soft spring
+      // correction instead of a hard, instantly-rigid one.
+      const offsetX = dx * 0.5 * diff * stiffness;
+      const offsetY = dy * 0.5 * diff * stiffness;
+
+      if (!p1.pinned) {
+        p1.x += offsetX;
+        p1.y += offsetY;
+      }
+      if (!p2.pinned) {
+        p2.x -= offsetX;
+        p2.y -= offsetY;
+      }
+    }
+    points[0].x = anchor.x;
+    points[0].y = anchor.y;
+  }
 }
 
-.lanyard-back-gif {
-  width: 64px;   /* icon-scale, like the VGen/Carrd links in the About Me card */
-  height: auto;
-  object-fit: contain;
+function updateSpinAndTilt() {
+  const last = points[points.length - 1];
+  const vx = last.x - last.oldx;
+  const vy = last.y - last.oldy;
+
+  spinVelocity += vx * spinTorque;
+  spinVelocity *= spinDamping;
+  spin += spinVelocity;
+
+  tiltVelocity += vy * tiltTorque;
+  tiltVelocity += -tiltX * tiltRestoring; // gravity easing it back flat
+  tiltVelocity *= tiltDamping;
+  tiltX += tiltVelocity;
+  if (tiltX > tiltLimit) { tiltX = tiltLimit; tiltVelocity = 0; }
+  if (tiltX < -tiltLimit) { tiltX = -tiltLimit; tiltVelocity = 0; }
 }
 
-.lanyard-tag {
-  align-self: stretch;
-  text-align: center;
-  background: linear-gradient(135deg, 
-#6ee7a8, 
-#22c55e);
-  color: #fff;
-  font-family: 'Pixelify Sans', cursive, sans-serif;
-  font-size: 12px;
-  letter-spacing: 1px;
-  padding: 4px 0;
-  border-radius: 6px;
+// ---- Rendering ----
+const ribbonColor = '#4ade80'; // vibrant green string, in place of the old pink
+const baseWidth = 14;
+
+function draw() {
+  ctx.clearRect(0, 0, width, height);
+
+  // Draw the string as a flat ribbon (a rectangle per segment) instead
+  // of a round cord. Segments get slightly thinner when stretched past
+  // their resting length, like a real elastic strap.
+  for (let i = 0; i < points.length - 1; i++) {
+    const p1 = points[i];
+    const p2 = points[i + 1];
+    const dx = p2.x - p1.x;
+    const dy = p2.y - p1.y;
+    const len = Math.sqrt(dx * dx + dy * dy) || 0.0001;
+    const nx = -dy / len;
+    const ny = dx / len;
+
+    const stretch = segmentLength / len;
+    const w = (baseWidth * Math.min(1.15, Math.max(0.65, stretch))) / 2;
+
+    ctx.beginPath();
+    ctx.moveTo(p1.x + nx * w, p1.y + ny * w);
+    ctx.lineTo(p2.x + nx * w, p2.y + ny * w);
+    ctx.lineTo(p2.x - nx * w, p2.y - ny * w);
+    ctx.lineTo(p1.x - nx * w, p1.y - ny * w);
+    ctx.closePath();
+    ctx.fillStyle = ribbonColor;
+    ctx.fill();
+  }
+
+  // Move and rotate the card to follow the last two points of the rope
+  const last = points[points.length - 1];
+  const prev = points[points.length - 2];
+  const angle = Math.atan2(last.x - prev.x, last.y - prev.y) * (180 / Math.PI);
+
+  card.style.transform = `translate(${last.x}px, ${last.y}px) rotateZ(${angle}deg)`;
+  // The spin/tilt live on the inner wrapper so they compose with (but
+  // don't fight) the swing rotation above.
+  flip.style.transform = `rotateX(${tiltX}deg) rotateY(${spin}deg)`;
 }
 
-.lanyard-photo {
-  width: 100%;
-  height: 200px;
-  border-radius: 10px; /* rectangular photo, not a circle */
-  object-fit: cover;
-  background: #fff;
-  border: 3px solid 
-#22c55e;
+function loop() {
+  updatePoints();
+  applyConstraints();
+  updateSpinAndTilt();
+  draw();
+  requestAnimationFrame(loop);
 }
-
-.lanyard-face-text {
-  text-align: center;
-}
-
-.lanyard-face-text h2 {
-  margin: 0;
-  font-family: 'Pixelify Sans', cursive, sans-serif;
-  font-size: 20px;
-  color: #000;
-}
-
-.lanyard-face-text p {
-  margin: 4px 0 0;
-  padding: 0;
-  font-family: 'Trebuchet MS', 'Segoe UI', sans-serif;
-  font-size: 12px;
-  color: #000;
-}
-
-.lanyard-back-text {
-  margin: 0;
-  font-family: 'Pixelify Sans', cursive, sans-serif;
-  font-size: 14px;
-  color: #000;
-}
-
-@media (max-width: 480px) {
-  #lanyard-container { height: 520px; }
-  #lanyard-card { width: 190px; height: 280px; margin-left: -95px; }
-  .lanyard-face-front { padding: 10px; gap: 8px; }
-  .lanyard-photo { height: 170px; }
-}
+loop();
