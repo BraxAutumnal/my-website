@@ -20,6 +20,13 @@ p {
   font-size: 16px;
 }
 
+/* Any text you want in the pixel/gaming font — just add this class */
+.intro-text {
+  font-family: 'Pixelify Sans', cursive, sans-serif;
+  font-size: 18px;
+  color: #d6336c;
+}
+
 /* Floating decorative emoji, placed near the page edges so they
    never sit under your main text */
 .cute-decor {
@@ -33,4 +40,69 @@ p {
   position: absolute;
   font-size: 28px;
   opacity: 0.55;
+}
+
+/* ---- About Me card ---- */
+
+.about-card {
+  position: relative;
+  z-index: 1; /* sit above the floating decor */
+  max-width: 640px;
+  margin: 40px 24px;
+  border-radius: 14px;
+  overflow: hidden;
+  border: 3px solid #ff5fa2;
+  box-shadow: 0 8px 0 #ff5fa2;
+}
+
+.about-card-header {
+  background: linear-gradient(135deg, #ff8fc4, #ff5fa2);
+  padding: 16px 20px;
+}
+
+.about-card-header h2 {
+  margin: 0;
+  font-family: 'Pixelify Sans', cursive, sans-serif;
+  color: #fff;
+  font-size: 22px;
+}
+
+.about-card-body {
+  background: #fff;
+  padding: 20px;
+}
+
+.about-card-body p {
+  margin: 0 0 16px;
+  padding: 0;
+  color: #b4477c;
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+.about-links {
+  display: flex;
+  gap: 12px;
+}
+
+.about-links a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 2px solid #ff8fc4;
+  background: #ffe1f0;
+  transition: transform 0.15s ease;
+}
+
+.about-links a:hover {
+  transform: translateY(-2px);
+}
+
+.about-links img {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
 }
