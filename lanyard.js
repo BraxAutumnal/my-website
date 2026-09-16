@@ -166,15 +166,6 @@ function draw() {
     ctx.fill();
   }
 
-  // Round off the joints between segments so the ribbon reads as one
-  // continuous strip instead of separate rectangles.
-  for (let i = 1; i < points.length - 1; i++) {
-    ctx.beginPath();
-    ctx.arc(points[i].x, points[i].y, baseWidth / 2, 0, Math.PI * 2);
-    ctx.fillStyle = ribbonColor;
-    ctx.fill();
-  }
-
   // Move and rotate the card to follow the last two points of the rope
   const last = points[points.length - 1];
   const prev = points[points.length - 2];
