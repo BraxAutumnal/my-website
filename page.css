@@ -102,17 +102,24 @@ p {
   justify-content: center;
 }
 
-/* No circle background/border - just the icon itself, sized by
-   width/height on the <img> below. Each icon pops in with a small
-   scale-up-and-settle, once on load, staggered slightly and timed to
-   start after the card has mostly finished sliding in. */
+/* Each icon starts life as a tiny, fully-round dot (5% scale, 50%
+   border-radius, invisible) sitting exactly where the icon will end
+   up. The single animation below then un-rounds it into its real
+   square shape while scaling it up to full size with a springy
+   overshoot - so it genuinely looks like a dot popping open into the
+   image, not just a small version of the icon growing. Runs once on
+   load, staggered per icon, timed to start after the card has mostly
+   finished sliding in. overflow: hidden keeps the corners cleanly
+   round while it's still small. */
 .about-links a {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   transition: transform 0.15s ease;
   opacity: 0;
-  transform: scale(0.3);
+  transform: scale(0.05);
+  border-radius: 50%;
+  overflow: hidden;
   animation: icon-pop-in 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
 }
 
@@ -124,6 +131,7 @@ p {
   to {
     opacity: 1;
     transform: scale(1);
+    border-radius: 0;
   }
 }
 
