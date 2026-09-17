@@ -93,14 +93,37 @@
 
 .lanyard-tag {
   align-self: stretch;
-  text-align: center;
   background: linear-gradient(135deg, #6ee7a8, #22c55e);
+  padding: 4px 0;
+  border-radius: 6px;
+  overflow: hidden; /* clips the scrolling text at the tag's own edges */
+}
+
+/* The track holds two back-to-back copies of the label. Animating it
+   from -50% to 0% shifts the whole strip by exactly one label's
+   width, so the instant the loop "resets" the pixels on screen are
+   identical to the frame right before it - a true unbroken scroll,
+   not a snap-back. Direction runs left -> right: text is offscreen
+   past the tag's left edge at the start of each loop and slides out
+   past the right edge by the end. */
+.lanyard-tag-track {
+  display: inline-flex;
+  white-space: nowrap;
+  animation: lanyard-tag-scroll 6s linear infinite;
+}
+
+.lanyard-tag-text {
+  display: inline-block;
+  padding-right: 32px; /* gap between the two repeats */
   color: #fff;
   font-family: 'Pixelify Sans', cursive, sans-serif;
   font-size: 12px;
   letter-spacing: 1px;
-  padding: 4px 0;
-  border-radius: 6px;
+}
+
+@keyframes lanyard-tag-scroll {
+  from { transform: translateX(-50%); }
+  to   { transform: translateX(0%); }
 }
 
 .lanyard-photo {
