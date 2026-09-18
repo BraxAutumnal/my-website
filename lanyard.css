@@ -98,9 +98,18 @@
                            text inside it */
   box-sizing: border-box;
   background: linear-gradient(135deg, #6ee7a8, #22c55e);
-  padding: 4px 0;
+  padding: 7px 0;
   border-radius: 6px;
   overflow: hidden; /* clips the scrolling text at the tag's own edges */
+  /* Flex (rather than a plain block) so the bar's height comes from its
+     actual content box instead of the surrounding line-box/font-metric
+     guess. That mismatch was the cause of the text being clipped: the
+     pixel font's real rendered height didn't match the line box the
+     browser was sizing the bar around, so overflow:hidden was chopping
+     the tops off the letters. Centering here also keeps the text
+     vertically centered instead of hugging one edge. */
+  display: flex;
+  align-items: center;
 }
 
 /* The track holds two back-to-back copies of the label. Animating it
@@ -112,17 +121,34 @@
    past the right edge by the end. */
 .lanyard-tag-track {
   display: inline-flex;
+  align-items: center;
   white-space: nowrap;
   animation: lanyard-tag-scroll 6s linear infinite;
 }
 
+/* Each half of the loop is now a group of repeats rather than a single
+   word. The two groups are identical, so the -50%/0% keyframe below
+   still lines up perfectly (it's just shifting by "one half of the
+   track," which is one full group) no matter how many words are
+   packed into each group. */
+.lanyard-tag-group {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
 .lanyard-tag-text {
-  display: inline-block;
-  padding-right: 32px; /* gap between the two repeats */
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+  padding-right: 24px; /* gap between repeats */
   color: #fff;
   font-family: 'Pixelify Sans', cursive, sans-serif;
-  font-size: 12px;
+  font-size: 11px;
+  line-height: 1; /* stops the pixel font's oversized default leading
+                     from pushing the glyphs taller than the bar */
   letter-spacing: 1px;
+  white-space: nowrap;
 }
 
 @keyframes lanyard-tag-scroll {
