@@ -102,15 +102,7 @@ p {
   justify-content: center;
 }
 
-/* Each icon starts life as a tiny, fully-round dot (5% scale, 50%
-   border-radius, invisible) sitting exactly where the icon will end
-   up. The single animation below then un-rounds it into its real
-   square shape while scaling it up to full size with a springy
-   overshoot - so it genuinely looks like a dot popping open into the
-   image, not just a small version of the icon growing. Runs once on
-   load, staggered per icon, timed to start after the card has mostly
-   finished sliding in. overflow: hidden keeps the corners cleanly
-   round while it's still small. */
+
 .about-links a {
   display: inline-flex;
   align-items: center;
@@ -145,25 +137,9 @@ p {
   object-fit: contain;
 }
 
-/* This icon is a white shape on a transparent background, with the
-   "i" itself punched out as a transparent hole rather than drawn in
-   a color - so sitting directly on the card's white background it
-   rendered as a blank square. Giving the <img> its own background
-   paints in behind those transparent pixels: the outer circle stays
-   white and the "i" hole shows the site's green through it. Padding
-   pulls the artwork in a touch so the small transparent margin
-   already baked into the source image reads as an intentional green
-   ring rather than a stray gap. */
+
 .about-links img.icon-carrd {
-  padding: 3px;
-  box-sizing: border-box;
-  background: linear-gradient(135deg, #6ee7a8, #22c55e);
-  border-radius: 50%;
+  width: 44px;
+  height: 44px;
 }
 
-/* No override needed here anymore - the newspaper icon already comes
-   with its own soft edges, slight tilt and drop shadow baked into
-   the artwork on a transparent background (unlike the old Straw
-   logo's hard-edged red square), and it's an animated gif, so the
-   default 32px box above is exactly right and just letting it play
-   is what "adapts" it in. */
