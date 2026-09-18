@@ -145,19 +145,25 @@ p {
   object-fit: contain;
 }
 
-/* The Carrd logo's artwork sits with a lot of empty space inside the
-   image itself, so it reads noticeably smaller than the VGen logo
-   even at the same box size. Sized up well past the VGen icon here
-   to actually compensate for that built-in whitespace. */
+/* This icon is a white shape on a transparent background, with the
+   "i" itself punched out as a transparent hole rather than drawn in
+   a color - so sitting directly on the card's white background it
+   rendered as a blank square. Giving the <img> its own background
+   paints in behind those transparent pixels: the outer circle stays
+   white and the "i" hole shows the site's green through it. Padding
+   pulls the artwork in a touch so the small transparent margin
+   already baked into the source image reads as an intentional green
+   ring rather than a stray gap. */
 .about-links img.icon-carrd {
-  width: 52px;
-  height: 52px;
+  padding: 3px;
+  box-sizing: border-box;
+  background: linear-gradient(135deg, #6ee7a8, #22c55e);
+  border-radius: 50%;
 }
 
-/* The Straw logo fills its square edge-to-edge already, so it needs
-   no upsizing like the Carrd icon does - the default 32px box below
-   is exactly right. Rounded slightly so its red square corners don't
-   look sharp/boxy next to the two round-edged icons beside it. */
-.about-links img.icon-straw {
-  border-radius: 6px;
-}
+/* No override needed here anymore - the newspaper icon already comes
+   with its own soft edges, slight tilt and drop shadow baked into
+   the artwork on a transparent background (unlike the old Straw
+   logo's hard-edged red square), and it's an animated gif, so the
+   default 32px box above is exactly right and just letting it play
+   is what "adapts" it in. */
