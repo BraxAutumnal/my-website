@@ -95,6 +95,36 @@ p {
   margin-bottom: 16px;
 }
 
+/* "Microsoft" gets its own rainbow-RGB treatment: each letter is a
+   separate span (see the HTML) carrying a --i index used only to
+   stagger its animation-delay. Two animations run on every letter,
+   sharing that same delay:
+   - msft-hue continuously spins each letter's hue through the full
+     color wheel (a real cycling RGB effect, not a fixed rainbow
+     palette painted once).
+   - msft-hop is a small, brief bounce that mostly sits still (it only
+     lifts around the 40% mark of its cycle) so with 9 letters staggered
+     0.15s apart, the bounce visibly travels from M to t and then
+     pauses before the next pass - "hops slowly left to right" rather
+     than all letters bobbing in place at once.
+   Both share one 3s loop, which is what keeps the whole thing feeling
+   slow rather than jittery. */
+.msft-rainbow span {
+  display: inline-block;
+  color: hsl(0, 90%, 55%);
+  animation: msft-hue 3s linear infinite, msft-hop 3s ease-in-out infinite;
+  animation-delay: calc(var(--i) * 0.15s);
+}
+
+@keyframes msft-hue {
+  to { filter: hue-rotate(360deg); }
+}
+
+@keyframes msft-hop {
+  0%, 80%, 100% { transform: translateY(0); }
+  40% { transform: translateY(-5px); }
+}
+
 .about-links {
   display: flex;
   gap: 16px;
@@ -102,7 +132,15 @@ p {
   justify-content: center;
 }
 
-
+/* Each icon starts life as a tiny, fully-round dot (5% scale, 50%
+   border-radius, invisible) sitting exactly where the icon will end
+   up. The single animation below then un-rounds it into its real
+   square shape while scaling it up to full size with a springy
+   overshoot - so it genuinely looks like a dot popping open into the
+   image, not just a small version of the icon growing. Runs once on
+   load, staggered per icon, timed to start after the card has mostly
+   finished sliding in. overflow: hidden keeps the corners cleanly
+   round while it's still small. */
 .about-links a {
   display: inline-flex;
   align-items: center;
@@ -137,9 +175,23 @@ p {
   object-fit: contain;
 }
 
-
+/* Circle background removed per request - this icon now sits on the
+   card exactly like the other two, with no colored backing behind
+   it. Sized up from the shared 32px default since it read small on
+   its own once the circle (which visually bulked it out before) was
+   gone. Heads up: this PNG's outer shape is white with the "i" cut
+   out as a transparent hole, so on this card's white background the
+   whole glyph may now read as basically invisible rather than just
+   "no circle" - if that's the case here too, it's the source image
+   itself needing a non-white/non-transparent mark, not a CSS fix. */
 .about-links img.icon-carrd {
   width: 44px;
   height: 44px;
 }
 
+/* No override needed here anymore - the newspaper icon already comes
+   with its own soft edges, slight tilt and drop shadow baked into
+   the artwork on a transparent background (unlike the old Straw
+   logo's hard-edged red square), and it's an animated gif, so the
+   default 32px box above is exactly right and just letting it play
+   is what "adapts" it in. */
