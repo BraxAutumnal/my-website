@@ -124,6 +124,23 @@
   align-items: center;
   white-space: nowrap;
   animation: lanyard-tag-scroll 6s linear infinite;
+  /* Starts paused - lanyard.js measures the exact pixel width of one
+     "ALL ACCESS" group and writes it into --marquee-shift before
+     unpausing. That fixes two separate things: (1) the old -50%
+     keyframe assumed the two duplicated groups split the track's
+     width exactly in half, but any sub-pixel layout rounding between
+     them left a tiny seam every loop; (2) this track sits inside the
+     same card whose transform lanyard.js's rope-physics loop rewrites
+     on every single animation frame, forever. Without its own
+     compositor layer this text can end up sharing a layer with that
+     constantly-moving card, so any main-thread hiccup (a GC pause, a
+     slow physics frame) makes the CSS timeline visibly jump to catch
+     up - which lands right on the loop boundary and reads as a hard
+     "snap" every several loops. will-change hands this animation
+     entirely to the compositor so it keeps running smoothly no
+     matter what the main thread is doing. */
+  will-change: transform;
+  animation-play-state: paused;
 }
 
 /* Each half of the loop is now a group of repeats rather than a single
@@ -152,7 +169,7 @@
 }
 
 @keyframes lanyard-tag-scroll {
-  from { transform: translateX(-50%); }
+  from { transform: translateX(var(--marquee-shift, -50%)); }
   to   { transform: translateX(0%); }
 }
 
