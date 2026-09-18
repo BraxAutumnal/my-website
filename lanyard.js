@@ -21,6 +21,36 @@ const card = document.getElementById('lanyard-card');
 const flip = card.querySelector('.lanyard-flip');
 const ctx = canvas.getContext('2d');
 
+// ---- Marquee: exact-pixel, jump-free loop ----
+// The CSS keyframes start paused with a -50% fallback. This measures
+// the real rendered width of a single "ALL ACCESS" group in pixels
+// and writes it into --marquee-shift, then unpauses. Using the
+// measured width of one group directly - rather than trusting that
+// it's exactly half the track's total width - removes any sub-pixel
+// seam between the two duplicated groups. Doing this before the
+// animation ever starts (it's paused in CSS until this runs) means
+// the variable is never changed mid-flight, so there's nothing to
+// visibly jump on the very first pass.
+function setupMarquee() {
+  const track = document.querySelector('.lanyard-tag-track');
+  const group = track && track.querySelector('.lanyard-tag-group');
+  if (!track || !group) return;
+  const shift = group.getBoundingClientRect().width;
+  if (shift > 0) {
+    track.style.setProperty('--marquee-shift', `-${shift}px`);
+  }
+  track.style.animationPlayState = 'running';
+}
+
+setupMarquee(); // immediate best-effort pass, so it never gets stuck paused
+if (document.fonts && document.fonts.ready) {
+  // Pixelify Sans loads async and can measure differently once it's
+  // actually in (vs. the fallback font used for the very first
+  // paint), so refine the measurement once it's settled.
+  document.fonts.ready.then(setupMarquee);
+}
+window.addEventListener('resize', setupMarquee);
+
 // ---- Rope setup ----
 const numSegments = 9;
 const segmentLength = 26;
