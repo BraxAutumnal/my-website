@@ -196,10 +196,10 @@ body { margin: 0; overflow-x: hidden; background: #fff; }
 /* ---------- Music player (peach card, same paper texture as the notes) ---------- */
 .music-player {
   width: 150px;
-  height: 180px;
+  height: 140px;
   margin: 0 0 0 calc(50% - 75px);
   box-sizing: border-box;
-  padding: 14px 16px 10px;
+  padding: 18px 16px 14px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -236,16 +236,6 @@ body { margin: 0; overflow-x: hidden; background: #fff; }
 .music-player.is-playing .mp-r { clip-path: polygon(62% 0, 86% 0, 86% 100%, 62% 100%); }
 .music-player.is-error { opacity: 0.6; }
 
-/* the little picture under the play button (static) */
-.mp-disk {
-  display: block;
-  width: 76px;
-  height: 76px;
-  object-fit: contain;
-  pointer-events: none;
-  -webkit-user-drag: none;
-  filter: drop-shadow(1px 2px 2px rgba(0,0,0,0.3));
-}
 
 
 .mp-seek {
@@ -484,7 +474,6 @@ body { margin: 0; overflow-x: hidden; background: #fff; }
                                 <button type="button" class="mp-btn" aria-label="Play">
                                     <span class="mp-bar mp-l"></span><span class="mp-bar mp-r"></span>
                                 </button>
-                                <img class="mp-disk" src="Camera.png" alt="" draggable="false">
                                 <input class="mp-seek" type="range" min="0" max="1000" step="1" value="0" aria-label="Seek">
                             </div>
                         </div>
