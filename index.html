@@ -52,7 +52,7 @@ body { margin: 0; overflow-x: hidden; background: #fff; }
 .th-profile :is(
   #PORTRAIT-ICON, #TOP-INFO > div:first-child, #TOP-INFO > div:nth-child(2),
   #STICKER-TOP-CENTER, #LINK-ICONS a, #BASICS, #STICKY-NOTE,
-  #SQUARE-IMAGE-ROW > div > img, #MUSIC-PLAYER, #SQUARE-IMAGE-ROW + div,
+  #WEATHER-CARD, #MUSIC-PLAYER, #SQUARE-IMAGE-ROW + div,
   #STICKER-BOTTOM-LEFT, #POLAROID-1, #STICKER-TOP-RIGHT, #POLAROID-2,
   #ROUND-STICKER, #STICKER-BOTTOM-CENTER
 ) {
@@ -70,7 +70,7 @@ body { margin: 0; overflow-x: hidden; background: #fff; }
 .th-profile #BASICS                                 { --d: 1.7s; }
 .th-profile #STICKY-NOTE                            { --d: 1.85s; }
 .th-profile #MUSIC-PLAYER                          { --d: 2s; }
-.th-profile #SQUARE-IMAGE-ROW > div:nth-child(3) > img { --d: 2.15s; }
+.th-profile #WEATHER-CARD                          { --d: 2.15s; }
 .th-profile #SQUARE-IMAGE-ROW + div                 { --d: 2.3s; }
 .th-profile #STICKER-BOTTOM-LEFT                    { --d: 2.45s; }
 .th-profile #POLAROID-1                             { --d: 2.6s; }
@@ -196,10 +196,10 @@ body { margin: 0; overflow-x: hidden; background: #fff; }
 /* ---------- Music player (peach card, same paper texture as the notes) ---------- */
 .music-player {
   width: 150px;
-  height: 140px;
-  margin: 0 auto;
+  height: 180px;
+  margin: 0 0 0 calc(50% - 75px);
   box-sizing: border-box;
-  padding: 18px 16px 14px;
+  padding: 14px 16px 10px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -236,6 +236,22 @@ body { margin: 0; overflow-x: hidden; background: #fff; }
 .music-player.is-playing .mp-r { clip-path: polygon(62% 0, 86% 0, 86% 100%, 62% 100%); }
 .music-player.is-error { opacity: 0.6; }
 
+/* the little disc under the play button: spins while the music plays */
+.mp-disk {
+  display: block;
+  width: 58px;
+  height: 58px;
+  object-fit: contain;
+  pointer-events: none;
+  -webkit-user-drag: none;
+  filter: drop-shadow(1px 2px 2px rgba(0,0,0,0.3));
+  animation: mp-spin 5s linear infinite;
+  animation-play-state: paused;
+}
+.music-player.is-playing .mp-disk { animation-play-state: running; }
+@keyframes mp-spin { to { transform: rotate(360deg); } }
+
+
 .mp-seek {
   -webkit-appearance: none;
   appearance: none;
@@ -256,6 +272,58 @@ body { margin: 0; overflow-x: hidden; background: #fff; }
 .mp-seek:active::-webkit-slider-thumb { transform: scale(1.25); }
 .mp-seek::-moz-range-track { height: 2px; background: #2a1c05; }
 .mp-seek::-moz-range-thumb { width: 15px; height: 15px; border: 0; border-radius: 50%; background: #2a1c05; }
+
+/* ---------- Weather + time card (mint paper, navy ink: matches the pattern it replaced) ---------- */
+.weather-card {
+  width: 150px;
+  height: 180px;
+  margin: 0 0 0 calc(50% - 75px);
+  box-sizing: border-box;
+  padding: 6px 12px 6px;
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+  color: #17405c;
+  background-color: #d6e8c0;
+  background-image: url(https://i.imgur.com/NHJYwtN.png);
+  transform: rotate(-6deg);
+  box-shadow: 1px 1px 1px rgba(0,0,0,0.3);
+  overflow: hidden;
+}
+.wx-time { font-size: 1.9rem; line-height: 1; letter-spacing: 0.5px; }
+.wx-colon { animation: wx-blink 1s steps(1) infinite; }
+@keyframes wx-blink { 50% { opacity: 0.25; } }
+.wx-place { font-size: 0.7rem; line-height: 1.2; opacity: 0.75; }
+.wx-now {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-template-areas: "icon temp" "text text";
+  align-items: center;
+  justify-content: center;
+  column-gap: 6px;
+  margin: 4px 0 3px;
+  padding: 3px 0;
+  border-top: 1px dashed rgba(23,64,92,0.45);
+  border-bottom: 1px dashed rgba(23,64,92,0.45);
+}
+.wx-icon { grid-area: icon; font-size: 1.15rem; line-height: 1; text-align: right; }
+.wx-temp { grid-area: temp; font-size: 1.35rem; line-height: 1; text-align: left; }
+.wx-text {
+  grid-area: text;
+  font-size: 0.72rem;
+  line-height: 1.15;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.wx-days { list-style: none; margin: 0; padding: 0; font-size: 0.72rem; line-height: 1.42; }
+.wx-days li { display: grid; grid-template-columns: 2.2em 1.5em 1fr 1fr; align-items: center; text-align: right; }
+.wx-d { text-align: left; }
+.wx-di { text-align: center; font-size: 0.7rem; }
+.wx-lo { opacity: 0.65; }
+.weather-card.is-loading .wx-text,
+.weather-card.is-error .wx-text { opacity: 0.7; }
 
 /* ---------- "click me" hint: a little cursor that taps the name note now and then ---------- */
 #CLICK-HINT {
@@ -420,13 +488,23 @@ body { margin: 0; overflow-x: hidden; background: #fff; }
                                 <button type="button" class="mp-btn" aria-label="Play">
                                     <span class="mp-bar mp-l"></span><span class="mp-bar mp-r"></span>
                                 </button>
+                                <img class="mp-disk" src="Disk.gif" alt="" draggable="false">
                                 <input class="mp-seek" type="range" min="0" max="1000" step="1" value="0" aria-label="Seek">
                             </div>
                         </div>
                         
                         <div class="col-lg-4 col-6">
-                            <!-- SQUARE IMAGE 3 -->
-                            <img src="https://i.imgur.com/0LG37U2.jpg" style="min-width: 140px; height: 140px; object-fit: cover; transform: rotate(-6deg); z-index: 1; box-shadow: 1px 1px 1px rgba(0,0,0,0.3);">
+                            <!-- WEATHER + TIME (replaces square image 3). Logic lives in weather.js -->
+                            <div id="WEATHER-CARD" class="weather-card" role="group" aria-label="Atlanta time and weather">
+                                <div class="wx-time">--<span class="wx-colon">:</span>--</div>
+                                <div class="wx-place">Atlanta, GA</div>
+                                <div class="wx-now">
+                                    <span class="wx-icon" aria-hidden="true"></span>
+                                    <span class="wx-temp"></span>
+                                    <span class="wx-text">Loading&hellip;</span>
+                                </div>
+                                <ul class="wx-days"></ul>
+                            </div>
                         </div>
                     </div>
                         
@@ -530,6 +608,7 @@ body { margin: 0; overflow-x: hidden; background: #fff; }
 
 <script src="shake.js"></script>
 <script src="player.js"></script>
+<script src="weather.js"></script>
 <script src="gallery.js"></script>
 <script src="floaters.js"></script>
 </body>
