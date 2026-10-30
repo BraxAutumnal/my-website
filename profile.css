@@ -1,0 +1,86 @@
+/* Page base (stands in for Toyhouse's own page + 15px profile padding) */
+body {
+  margin: 0;
+  overflow-x: hidden;
+  background: #fff;
+}
+
+.th-profile {
+  padding: 15px;
+}
+
+/* ---------- Link icons (same pop-in as your About Me icons) ---------- */
+
+.link-icons a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border-radius: 0;
+  transition: transform 0.15s ease;
+  animation: icon-pop-in 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) backwards;
+}
+
+.link-icons a:nth-child(1) { animation-delay: 0.55s; }
+.link-icons a:nth-child(2) { animation-delay: 0.7s; }
+.link-icons a:nth-child(3) { animation-delay: 0.85s; }
+
+@keyframes icon-pop-in {
+  from {
+    opacity: 0;
+    transform: scale(0.05);
+    border-radius: 50%;
+  }
+}
+
+.link-icons a:hover,
+.link-icons a:focus-visible {
+  transform: translateY(-3px) rotate(-6deg);
+}
+
+.link-icons img {
+  display: block;
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+}
+
+.link-icons img.icon-carrd {
+  width: 34px;
+  height: 34px;
+  object-fit: cover;
+}
+
+.link-icons img.icon-straw {
+  width: 26px;
+  height: 26px;
+}
+
+/* ---------- Shakeable board ---------- */
+
+.board-live {
+  cursor: grab;
+  /* vertical swipes still scroll the page on phones; sideways shakes are ours */
+  touch-action: pan-y;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.board-live.is-held {
+  cursor: grabbing;
+}
+
+/* so the pointer is never swallowed by a YouTube embed mid-shake */
+.board-live.is-held iframe {
+  pointer-events: none;
+}
+
+.board-live img {
+  -webkit-user-drag: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .link-icons a {
+    animation: none;
+  }
+}
