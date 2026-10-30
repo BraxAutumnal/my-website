@@ -1,4 +1,3 @@
-
 (function () {
   function mk(el, o) {
     return Object.assign({ el: el, extras: [], still: false, parent: null }, o);
@@ -504,6 +503,7 @@
     )
     .concat([
       mk($('MUSIC-PLAYER')),
+      mk($('WEATHER-CARD')),
       mk($('SQUARE-IMAGE-ROW').nextElementSibling),
       mk($('STICKER-BOTTOM-LEFT')),
       mk($('STICKER-TOP-RIGHT')),
