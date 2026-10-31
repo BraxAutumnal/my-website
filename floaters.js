@@ -1,4 +1,3 @@
-
 (function () {
   const els = Array.from(document.querySelectorAll('.floater'));
   if (!els.length) return;
