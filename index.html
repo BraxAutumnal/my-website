@@ -4,6 +4,17 @@
 <meta charset="utf-8">
 <title>Brax</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<script>
+/* Tags iPhone / iPad / Android devices (including "desktop site" mode on a phone) with
+   class "mobile-os" on <html>. PC browsers never get it, so the mobile-only CSS below can't touch them. */
+(function () {
+  var ua = navigator.userAgent || '';
+  var byUA = /Android|iPhone|iPad|iPod/i.test(ua);
+  var iPadOS = /Macintosh/.test(ua) && navigator.maxTouchPoints > 1;
+  var touchOnly = !!(window.matchMedia && window.matchMedia('(hover: none) and (pointer: coarse)').matches);
+  if (byUA || iPadOS || touchOnly) document.documentElement.className += ' mobile-os';
+})();
+</script>
 <!-- Toyhouse profiles run on Bootstrap 4, so the same classes work here -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
 <link rel="stylesheet" href="fonts.css">
@@ -116,7 +127,7 @@ body { margin: 0; overflow-x: hidden; background: #fff; }
   position: relative;
   border: 20px ridge #d5e4f0;
   border-radius: 10px;
-  font-family: Ink Free, Monotype Corsiva, sans-serif;
+  font-family: Ink Free, Monotype Corsiva, 'Brax Hand', sans-serif;
   font-weight: bold;
   overflow: hidden;
   box-shadow: inset 1px 1px 3px rgba(0,0,0,0.5);
@@ -358,6 +369,37 @@ body { margin: 0; overflow-x: hidden; background: #fff; }
   .th-profile .text-dark,
   .th-profile * { animation: none !important; }
 }
+
+/* ---------- Handwriting font for phones ----------
+   The PC look comes from "Ink Free" (a Windows font that iOS/Android don't have). "Brax Hand" is a web font
+   placed after it in the font stacks, so it is only ever used where Ink Free (and Monotype Corsiva) are missing.
+   Looks for the file in /fonts first, then falls back to a CDN copy. */
+@font-face {
+  font-family: 'Brax Hand';
+  src: url('fonts/patrick-hand-latin-400-normal.woff2') format('woff2'),
+       url('https://cdn.jsdelivr.net/npm/@fontsource/patrick-hand@5/files/patrick-hand-latin-400-normal.woff2') format('woff2');
+  font-weight: 100 900;   /* one weight file: stops phones from faking an extra-heavy bold */
+  font-style: normal;
+  font-display: swap;
+}
+
+/* ---------- YouTube picture frames on phones: same size as the PC layout ----------
+   PC: frame is about 265px wide with the video about 249 x 220. Only applies when <html> has "mobile-os". */
+html.mobile-os #POLAROID-1,
+html.mobile-os #POLAROID-2 {
+  width: min(265px, 100%) !important;
+}
+html.mobile-os #POLAROID-1 iframe,
+html.mobile-os #POLAROID-2 iframe {
+  height: 220px !important;
+}
+@supports (aspect-ratio: 1 / 1) {
+  html.mobile-os #POLAROID-1 iframe,
+  html.mobile-os #POLAROID-2 iframe {
+    height: auto !important;
+    aspect-ratio: 249 / 220;   /* keeps the PC shape even if the phone is too narrow for the full 265px */
+  }
+}
 </style>
 </head>
 <body>
@@ -365,7 +407,7 @@ body { margin: 0; overflow-x: hidden; background: #fff; }
 <main class="th-profile">
 
 <div id="MAIN-VIEW" style="margin: -15px; padding: 30px; position: relative; background: #fff;">
-<div class="text-dark" style="max-width: 980px; margin: 0 auto; background-image: url(https://i.imgur.com/rtK9KdQ.jpg); background-size: cover; background-position: center 30%; position: relative; border: 20px ridge #d5e4f0; border-radius: 10px; font-family: Ink Free, Monotype Corsiva, sans-serif; font-weight: bold; overflow: hidden; box-shadow: inset 1px 1px 3px rgba(0,0,0,0.5);">
+<div class="text-dark" style="max-width: 980px; margin: 0 auto; background-image: url(https://i.imgur.com/rtK9KdQ.jpg); background-size: cover; background-position: center 30%; position: relative; border: 20px ridge #d5e4f0; border-radius: 10px; font-family: Ink Free, Monotype Corsiva, 'Brax Hand', sans-serif; font-weight: bold; overflow: hidden; box-shadow: inset 1px 1px 3px rgba(0,0,0,0.5);">
     
         
         <!-- TOP -->
