@@ -1,12 +1,3 @@
-/*
-  Gallery board.
-  - Click the "Brax / The autumnal wolverine" note on the main board and the
-    page swaps to a second board with the same design, filled with Brax's art.
-    (No navigation: the address just gets #gallery so the browser Back button works.)
-  - Webm pieces play on a loop, every piece pops in one by one, and the whole
-    board can be grabbed and shaken just like the main one (uses shake.js).
-  - Clicking a piece (without dragging) opens the VGen page.
-*/
 (function () {
   const mainView = document.getElementById('MAIN-VIEW');
   const view = document.getElementById('GALLERY-VIEW');
