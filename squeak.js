@@ -1,14 +1,8 @@
-/*
-  Squeaky toy sound for the floating BraxEye icon.
-  Click (or tap) the icon and it squeaks.
 
-  This only listens for clicks. It doesn't touch floaters.js, so the icon's
-  spinning, drifting and fling physics are exactly as they were.
-*/
 (function () {
   const SRC = 'Squeaky_Toy_Sound_Effect.mp3';
   const VOLUME = 0.7;   // 0 to 1
-  const VOICES = 3;     // a few copies, so fast clicks can overlap instead of cutting off
+  const VOICES = 3;     // a few copies, so fast presses can overlap instead of cutting off
 
   const icons = Array.from(document.querySelectorAll('.floater'));
   if (!icons.length) return;
@@ -18,6 +12,9 @@
     const a = new Audio(SRC);
     a.preload = 'auto';
     a.volume = VOLUME;
+    a.addEventListener('error', function () {
+      if (window.console && i === 0) console.warn('Squeak: could not load "' + SRC + '" (is it in the same folder as index.html?)');
+    });
     pool.push(a);
   }
   let next = 0;
@@ -31,6 +28,13 @@
   }
 
   icons.forEach(function (el) {
-    el.addEventListener('click', squeak);
+    // mouse: squeak on the press itself
+    el.addEventListener('pointerdown', function (e) {
+      if (e.pointerType === 'mouse' && e.button === 0) squeak();
+    });
+    // finger / pen: squeak when it lifts (the moment browsers allow sound)
+    el.addEventListener('pointerup', function (e) {
+      if (e.pointerType !== 'mouse') squeak();
+    });
   });
 })();
