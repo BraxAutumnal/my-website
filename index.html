@@ -25,6 +25,13 @@ body { margin: 0; overflow-x: hidden; background: #fff; }
 .th-profile { padding: 15px; }
 
 /* ---------- Link icons: tiny, all the same size ---------- */
+/* Bio box: stretch it further to the right on wider screens */
+@media (min-width: 768px) {
+  #DETAILS-BOX { margin-right: -45px; }
+}
+/* Microsoft wordmark colour + logo */
+.ms-brand { color: #727272; white-space: nowrap; }
+.ms-logo { display: inline-block; width: 0.9em; height: 0.9em; vertical-align: -0.1em; margin-right: 0.3em; }
 .link-icons a { display: inline-flex; transition: transform 0.15s ease; }
 .link-icons a:hover,
 .link-icons a:focus-visible { transform: translateY(-2px) rotate(-6deg); }
@@ -425,13 +432,13 @@ html.mobile-os #POLAROID-2 iframe {
                             </div>
                             
                             <!-- DETAILS -->
-                            <div class="bg-white px-2 py-3 mb-1 row text-center" style="box-shadow: 1px 1px 1px rgba(0,0,0,0.3); background-image: url(https://i.imgur.com/NHJYwtN.png);">
+                            <div id="DETAILS-BOX" class="bg-white px-2 py-3 mb-1 row text-center" style="box-shadow: 1px 1px 1px rgba(0,0,0,0.3); background-image: url(https://i.imgur.com/NHJYwtN.png);">
                                 
                                 
                                 <div class="col-6">Age: 20</div>
                                 <div class="col-6">Pronouns: he/him</div>
                                 <div class="col-6">computer science + data Science</div>
-                                <div class="col-6">data scientist intern @ Microsoft</div>
+                                <div class="col-6">data scientist intern @ <span class="ms-brand"><svg class="ms-logo" viewBox="0 0 23 23" aria-hidden="true"><rect x="0" y="0" width="11" height="11" fill="#F14F21"/><rect x="12" y="0" width="11" height="11" fill="#7EB900"/><rect x="0" y="12" width="11" height="11" fill="#00A3EE"/><rect x="12" y="12" width="11" height="11" fill="#FEB800"/></svg>Microsoft</span></div>
 
 
                                 
