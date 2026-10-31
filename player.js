@@ -1,14 +1,3 @@
-/*
-  Music player on the main board (replaces the old square image).
-  One play/pause button (the bars melt into a triangle and back) and a slider
-  to jump to any part of the song. It's a playlist, so more tracks can be
-  added below; with just one track it loops.
-
-  TRACKS: each track lists file names to try, in order (the first one that
-  loads wins). Paths are relative to index.html. If none of them load and the
-  site is hosted on GitHub Pages, the player looks through the repo for an
-  .mp3 on its own (it prefers one with "omg" in the name).
-*/
 (function () {
   const TRACKS = [
     {
