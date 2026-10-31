@@ -478,23 +478,18 @@
 
   const $ = function (id) { return document.getElementById(id); };
   const portrait = $('PORTRAIT-ICON');
-  const topSticker = $('STICKER-TOP-CENTER');
+  const linkIcons = $('LINK-ICONS');
   const board = portrait && portrait.closest('.text-dark');
-  if (!board || !topSticker || !$('SQUARE-IMAGE-ROW')) return;
+  if (!board || !linkIcons || !$('SQUARE-IMAGE-ROW')) return;
 
-  /* The dolphin sticker is absolutely positioned against #TOP-INFO, so lifting
-     it out of the Age/Pronouns bar changes nothing visually, but lets it fall
-     as its own piece. */
-  const details = topSticker.parentElement;
+  const details = linkIcons.parentElement; // the Age / Pronouns / links strip
   const nameTag = details.previousElementSibling;
-  details.parentNode.insertBefore(topSticker, details.nextSibling);
 
   const detailsPiece = mk(details, { still: true }); // flat strip: no tumbling
   const pieces = [
     mk(portrait),
     mk(nameTag),
     detailsPiece,
-    mk(topSticker),
     mk($('BASICS')),
     mk($('STICKY-NOTE'))
   ]
@@ -505,10 +500,8 @@
       mk($('MUSIC-PLAYER')),
       mk($('WEATHER-CARD')),
       mk($('SQUARE-IMAGE-ROW').nextElementSibling),
-      mk($('STICKER-BOTTOM-LEFT')),
-      mk($('STICKER-TOP-RIGHT')),
       mk($('POLAROID-1')),
-      mk($('POLAROID-2'), { extras: [$('ROUND-STICKER'), $('STICKER-BOTTOM-CENTER')].filter(Boolean) })
+      mk($('POLAROID-2'))
     ])
     .concat(
       Array.from(details.querySelectorAll('#LINK-ICONS a')).map(function (a) { return mk(a, { parent: detailsPiece }); })
