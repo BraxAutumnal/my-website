@@ -1,21 +1,3 @@
-/*
-  Squeaky toy sound for the floating BraxEye icon.
-  Press (click, hold, grab or fling) the icon and it squeaks.
-
-  This only listens to presses. It doesn't touch floaters.js, so the icon's
-  spinning, drifting and fling physics are exactly as they were.
-
-  How it works
-  - The sound is downloaded once and played with the Web Audio API. That works
-    on phones too, and lets it be played a bit louder than a normal <audio> tag
-    (the clip itself is fairly quiet): change GAIN below.
-  - It tries the file names in FILES. If none exist, it looks through the
-    GitHub repo (OWNER / REPO) for an .mp3 with "squeak" in its name, then for
-    any .mp3 that isn't omg.
-  - Trouble? Open your site with  ?squeakdebug  on the end of the address
-    (e.g.  braxhere.vercel.app/?squeakdebug ). A small box at the bottom left
-    says what it found and what happens when you press the icon.
-*/
 (function () {
   const FILES = [
     'Squeaky_Toy_Sound_Effect.mp3',
