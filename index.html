@@ -186,12 +186,6 @@ body { margin: 0; overflow-x: hidden; background: #fff; }
   transform: rotate(-4deg);
   z-index: 2;
 }
-.g-sticker {
-  position: absolute;
-  width: 72px;
-  z-index: 3;
-  filter: drop-shadow(1px 1px 1px rgba(0,0,0,0.3));
-}
 @media (max-width: 575px) {
   .g-lg { width: 78%; }
   .g-md { width: 62%; }
@@ -604,9 +598,6 @@ html.mobile-os #POLAROID-2 iframe {
         <!-- ART (built by gallery.js) -->
         <div id="GALLERY-GRID"></div>
 
-        <!-- STICKERS -->
-        <img class="g-sticker g-pop" style="--d: 3.95s; bottom: 6px; left: 10px; transform: rotate(8deg);" src="https://images.emojiterra.com/google/noto-emoji/v2.034/512px/26f5.png" alt="">
-        <img class="g-sticker g-pop" style="--d: 4.1s; bottom: 4px; right: 12px; transform: rotate(-8deg);" src="https://images.emojiterra.com/google/noto-emoji/v2.034/128px/1f31e.png" alt="">
     </div>
 </div>
 </div>
@@ -615,7 +606,7 @@ html.mobile-os #POLAROID-2 iframe {
 
 <img class="floater" src="BraxEye.png" data-alt="braxeye.png" alt="" aria-hidden="true" onerror="var f=this.getAttribute('data-alt');if(f){this.removeAttribute('data-alt');this.src=f;}">
 
-<script src="shake.js"></script>
+<script src="shake.js?v=2"></script>
 <script src="player.js"></script>
 <script src="weather.js"></script>
 <script src="gallery.js"></script>
