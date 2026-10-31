@@ -1,23 +1,18 @@
-/*
-  Floating icons (BraxEye.png, AltarioEye.png).
-  - They spin and drift slowly from the left of the screen to the right.
-  - Grab one, fling it, and it bounces off the edges of the screen (and off the
-    other icon). When it has settled for a moment it goes back to drifting.
-*/
+
 (function () {
   const els = Array.from(document.querySelectorAll('.floater'));
   if (!els.length) return;
   if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
   const RESTITUTION = 0.85;  // bounciness off the screen edges
-  const KEEP_PER_SEC = 0.4;  // share of speed kept after 1s of sliding (air friction)
-  const MAX_FLING = 3200;    // px/s
-  const CALM_SPEED = 25;     // px/s: slower than this counts as settled
-  const CALM_TIME = 1.2;     // s settled before it goes back to drifting
-  const OFFSCREEN_REST = 5;  // s resting past the right edge before coming back
-  const BOB = 40;            // px of gentle up/down while drifting
+  const KEEP_PER_SEC = 0.4;  
+  const MAX_FLING = 3200;    
+  const CALM_SPEED = 25;     
+  const CALM_TIME = 1.2;     
+  const OFFSCREEN_REST = 5;  
+  const BOB = 40;            
 
-  // one entry per icon: when it first appears, how high, how slowly it crosses
+
   const CONFIG = [
     { delay: 1.5, yFrac: 0.38, cross: 44, spin: 40 },
     { delay: 8,   yFrac: 0.68, cross: 56, spin: -40 }
