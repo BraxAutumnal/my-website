@@ -1,17 +1,3 @@
-/*
-  Atlanta time + weather card (#WEATHER-CARD).
-
-  - Clock: 24-hour time in Atlanta (America/New_York), no seconds.
-  - Weather: National Weather Service API (api.weather.gov), free, no key.
-      Step 1  /points/{lat},{lon}  ->  the exact forecast URL for this grid square
-      Step 2  that forecast URL    ->  7 days of 12-hour periods
-  - Caching: the forecast is kept in localStorage for 15 minutes, so page
-    loads and clicks don't keep hitting the API. (The grid's forecast URL never
-    changes, so it is remembered for a week.) If the NWS is down, the last
-    saved forecast is shown instead of an error.
-
-  Location: ZIP 30039 (Snellville / Lithonia, GA) ~ 33.7865, -84.0628
-*/
 (function () {
   const card = document.getElementById('WEATHER-CARD');
   if (!card) return;
@@ -20,8 +6,7 @@
   const LON = -84.0628;
   const TZ = 'America/New_York';
 
-  // NWS asks every app to identify itself. Put your site (and, if you like, a
-  // contact) in here. Note: this is a public file, so anything you type is public.
+
   const USER_AGENT = '(braxhere.vercel.app, contact@example.com)';
 
   const FORECAST_TTL = 15 * 60 * 1000;           // 15 minutes
